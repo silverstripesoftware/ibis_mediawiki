@@ -1568,3 +1568,11 @@ div#mw-search-interwiki-caption {
 .ibis_conversation .type_position{
 	background:#98D3FF;
 }
+
+.ibis_conversation .type_supporting_argument{
+	background:#98FF98;
+}
+
+.ibis_conversation .type_opposing_argument{
+	background:#FF9898;
+}
