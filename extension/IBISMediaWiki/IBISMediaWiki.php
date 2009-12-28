@@ -17,7 +17,7 @@ $wgExtensionFunctions[] = 'fnIBISMediaWiki';
 $wgExtensionCredits['other'][] = array(
   'name'       => 'IBIS_Mediawiki',
   'author'     => 'Karthik jayapal',
-  'url'        => 'url',
+  'url'        => '',
   'description'=> 'IBIS conversation in Mediawiki',
 );
 
@@ -54,100 +54,176 @@ function fnIBISArrayToHTML($array){
 
 function fnIBISPageRenderer( &$out, &$text ){
 	global $wgTitle;
-	$article = new Article($wgTitle);
-	$content = $article->getContent();
-	$array = fnIBISYamlToArray($content);
-	$text = fnIBISArrayToHTML($array);
+	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+		$article = new Article($wgTitle);
+		$content = $article->getContent();
+		$array = fnIBISYamlToArray($content);
+		if(isset($array['title']) && isset($array['type'])){
+			$text = fnIBISArrayToHTML($array);
+		}
+	}
 	return true;
 }
 
 function fnIBISEdit( &$editpage)
 {	
-	global $wgOut,$wgRequest;
-	$type_map = array(
-		'issue' => 'Issue',
-		'position' => 'Position',
-		'supporting_argument' => 'Supporting Argument',
-		'opposing_argument' => 'Opposing Argument',
-	);
-	$wgOut->setPageTitle('Editing IBIS Node : '.$editpage->mTitle->getText());
-	
-	if ( $wgRequest->wasPosted() ) {
-		$desc = $wgRequest->getText( 'description' );
-		$type = $wgRequest->getText( 'type' );
-		if($wgRequest->getCheck('save')){
-			if($desc==''){
-				$wgOut->addWikiText('<strong style="color:red;">Error : Description cannot be left blank</strong>');
-				//$wgOut->errorpage( 'badtitle', 'badtitletext');
-			}
-			else{		
-				$page_title = fnIBISCreatePage($desc,$type);
-				// Get the current page content
-				$content = $editpage->mArticle->getContent();
-				// Add the response to the current page content
-				$content = fnIBISAddResponse($content,$desc,$type,$page_title);
-				// Update the current page content with new response
-				$editpage->mArticle->updateArticle( $content, '', false,	false, false, '' );
+	global $wgOut,$wgRequest,$wgTitle;
+	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+		$type_map = array(
+			'issue' => 'Issue',
+			'position' => 'Position',
+			'supporting_argument' => 'Supporting Argument',
+			'opposing_argument' => 'Opposing Argument',
+		);
+		$wgOut->setPageTitle('Editing IBIS Node : '.$editpage->mTitle->getText());
+		
+		$content = $editpage->mArticle->getContent();
+		
+		$ibis_array = fnIBISYamlToArray($content);
+		
+		if ( $wgRequest->wasPosted() ) {		
+			if($wgRequest->getCheck('save')){
+				fnIBISSaveResponses($wgRequest,$editpage,$ibis_array);
 				$wgOut->redirect($editpage->mTitle->getFullUrl());
-				#$wgOut->addWikiText(sprintf('<strong style="color:green;">%s Added</strong>',$type_map[$type]));
+			}
+			if($wgRequest->getCheck('cancel')){
+				$wgOut->redirect($editpage->mTitle->getFullUrl());
 			}
 		}
-		if($wgRequest->getCheck('cancel')){
-			$wgOut->redirect($editpage->mTitle->getFullUrl());
-		}
-	}
-	// Render Edit form;
-	$edit_form = fnIBISEditForm();
-	$wgOut->addHTML	($edit_form);
+		// Render Edit form
+		$edit_form = fnIBISEditForm($ibis_array);
+		$wgOut->addHTML	($edit_form);
 
-	return false;
+		return false;
+	}
+	else{
+		return True;
+	}
 }
-function fnIBISEditForm(){
-	$form = '<form action="" method="post">
-				<h3> Response </h3>
-				<select name="type">
-					<option value="issue">Issue</option>
-					<option value="position">Position</option>
-					<option value="supporting_argument">Supporting Argument</option>
-					<option value="opposing_argument">Opposing Argument</option>
+function fnIBISEditForm($ibis_array){
+	function fnGetSelectedTypeMap(){
+		return array(
+			'%issue%' => '',
+			'%position%' => '',
+			'%supporting_argument%' => '',
+			'%opposing_argument%' => '',
+		);
+	}
+	function fnGetResponseTemplate(){
+		return '<select name="type[]">
+					<option value="issue" %issue%>Issue</option>
+					<option value="position" %position% >Position</option>
+					<option value="supporting_argument" %supporting_argument% >Supporting Argument</option>
+					<option value="opposing_argument" %opposing_argument% >Opposing Argument</option>
 				</select>
-				<input type="text" name="description" size="50" />
-				<br /><br />
+				<input type="text" name="ibis_title[]" size="50" value="%s"/>
+				<input type="hidden" name="node[]" value="%s" />
+				<br /><br />';
+	}
+	function fnCreateResponseForm($title,$type,$node){
+		// A Map of response type and selected
+		$selected_type = fnGetSelectedTypeMap();
+		// Response template
+		$response_template = fnGetResponseTemplate();
+		// Changing null to selected for respective response type
+		$selected_type["%".$type."%"] = 'selected';
+		// Replace selected response type map with response_template
+		$response_template = str_replace(array_keys($selected_type),array_values($selected_type),$response_template);
+		// Format response template with response title and its node info
+		$response = sprintf($response_template,$title,$node);
+		
+		return $response;
+	}
+	
+	$form = '<form action="" method="post">
+				<h3> Responses : </h3>
+				%s
 				<input type="submit" value="Save" name="save"/>
 				<input type="submit" value="Cancel" name="cancel"/>
 			</form>';
+
+	// A varaible to hold all the response form
+	$responses = '';
+	//Building pre-filled response form with node content
+	foreach($ibis_array['responses'] as $response){
+		$responses .= fnCreateResponseForm($response['title'],$response['type'],$response['node']);
+	}
+	//Adding a new response form at the end to add new response by passing empty values to CreateResponseForm funciton
+	$responses .= fnCreateResponseForm('','','');
+	$form = sprintf($form,$responses);
+
 	return $form;
 }
-
-function fnIBISCreatePage($desc,$type){
-	$id = fnIBISGetNextPageID();
-	$new_title = "IBIS_".$id;
-	$body = fnIBISBuildYAMLConversation($desc,$type);
-	$title = Title::newFromText($new_title);
+function fnIBISSaveResponses($request,$editpage,$ibis_array){
+	// Removing the existing responses
+	unset($ibis_array['responses']);
+	
+	$types = $request->data['type'];
+	$titles = $request->data['ibis_title'];
+	$nodes = $request->data['node'];
+	for($i=0;$i<count($titles);$i++){
+		$title = $titles[$i];
+		$type = $types[$i];
+		$node = $nodes[$i];
+		
+		//Proceed only if title is not empty
+		if($title!=''){
+			if($node==''){
+				//Create page
+				$page_title = fnIBISEditPage($title,$type);
+			}
+			else{
+				//Edit page
+				$page_title = fnIBISEditPage($title,$type,$node);
+			}
+			// Add the response to the current page content
+			$ibis_array = fnIBISAddResponse($ibis_array,$title,$type,$page_title);
+		}
+	}
+	
+	//Convert IBIS array to YAML
+	$content = fnIBISArrayToYaml($ibis_array);
+	
+	// Update the current page content with new responses
+	$editpage->mArticle->updateArticle( $content, '', false, false, false, '' );
+	return;
+}
+function fnIBISEditPage($ibis_title,$type,$page_title=''){
+	$newPage = False;
+	if($page_title==''){
+		$newPage = True;
+		$id = fnIBISGetNextPageID();
+		$page_title = "IBIS_".$id;
+		$body = fnIBISBuildYAMLConversation($ibis_title,$type);
+	}
+	$title = Title::newFromText($page_title);
 	$article = new Article($title);
+	if($newPage){
+		$body = fnIBISBuildYAMLConversation($ibis_title,$type);
+	}
+	else{
+		$content = $article->getContent();
+		$ibis = fnIBISYamlToArray($content);
+		$body = fnIBISBuildYAMLConversation($ibis_title,$type,$ibis);
+	}
 	$article->doEdit($body,'');
-	return $new_title;
+	return $page_title;
 }
 
-function fnIBISAddResponse($content,$desc,$type,$page_title)
+function fnIBISAddResponse($ibis_array,$title,$type,$page_title)
 {
-	$ibis = fnIBISYamlToArray($content);
-	
 	$response = array();
-	$response['title'] = $desc;
+	$response['title'] = $title;
 	$response['type'] = $type;
 	$response['node'] = $page_title;
 	
-	$ibis['responses'][]= $response;
+	$ibis_array['responses'][]= $response;
 	
-	$content = fnIBISArrayToYaml($ibis);
-	
-	return $content;
+	return $ibis_array;
 	
 }
-function fnIBISBuildYAMLConversation($desc,$type){
-	$ibis = array();
-	$ibis['title'] = $desc;
+function fnIBISBuildYAMLConversation($title,$type,$ibis=array()){
+	$ibis['title'] = $title;
 	$ibis['type'] = $type;
 	return fnIBISArrayToYaml($ibis);
 }
