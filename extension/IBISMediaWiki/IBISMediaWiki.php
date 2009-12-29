@@ -11,7 +11,8 @@ if( !defined( 'MEDIAWIKI' ) ) {
 	die();
 }
 
-require_once('spyc.php');
+require_once('YAMLHandler.php');
+require_once('FormHandler.php');
 
 $wgExtensionFunctions[] = 'fnIBISMediaWiki';
 $wgExtensionCredits['other'][] = array(
@@ -57,7 +58,7 @@ function fnIBISPageRenderer( &$out, &$text ){
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		$article = new Article($wgTitle);
 		$content = $article->getContent();
-		$array = fnIBISYamlToArray($content);
+		$array = YAMLHandler::YAMLToArray($content);
 		if(isset($array['title']) && isset($array['type'])){
 			$text = fnIBISArrayToHTML($array);
 		}
@@ -79,7 +80,7 @@ function fnIBISEdit( &$editpage)
 		
 		$content = $editpage->mArticle->getContent();
 		
-		$ibis_array = fnIBISYamlToArray($content);
+		$ibis_array = YAMLHandler::YAMLToArray($content);
 		
 		if ( $wgRequest->wasPosted() ) {		
 			if($wgRequest->getCheck('save')){
@@ -101,56 +102,18 @@ function fnIBISEdit( &$editpage)
 	}
 }
 function fnIBISEditForm($ibis_array){
-	function fnGetSelectedTypeMap(){
-		return array(
-			'%issue%' => '',
-			'%position%' => '',
-			'%supporting_argument%' => '',
-			'%opposing_argument%' => '',
-		);
-	}
-	function fnGetResponseTemplate(){
-		return '<select name="type[]">
-					<option value="issue" %issue%>Issue</option>
-					<option value="position" %position% >Position</option>
-					<option value="supporting_argument" %supporting_argument% >Supporting Argument</option>
-					<option value="opposing_argument" %opposing_argument% >Opposing Argument</option>
-				</select>
-				<input type="text" name="ibis_title[]" size="50" value="%s"/>
-				<input type="hidden" name="node[]" value="%s" />
-				<br /><br />';
-	}
-	function fnCreateResponseForm($title,$type,$node){
-		// A Map of response type and selected
-		$selected_type = fnGetSelectedTypeMap();
-		// Response template
-		$response_template = fnGetResponseTemplate();
-		// Changing null to selected for respective response type
-		$selected_type["%".$type."%"] = 'selected';
-		// Replace selected response type map with response_template
-		$response_template = str_replace(array_keys($selected_type),array_values($selected_type),$response_template);
-		// Format response template with response title and its node info
-		$response = sprintf($response_template,$title,$node);
-		
-		return $response;
-	}
-	
-	$form = '<form action="" method="post">
-				<h3> Responses : </h3>
-				%s
-				<input type="submit" value="Save" name="save"/>
-				<input type="submit" value="Cancel" name="cancel"/>
-			</form>';
 
+	$form_handler = new FormHandler();
 	// A varaible to hold all the response form
 	$responses = '';
 	//Building pre-filled response form with node content
-	foreach($ibis_array['responses'] as $response){
-		$responses .= fnCreateResponseForm($response['title'],$response['type'],$response['node']);
+	if(isset($ibis_array['responses'])){
+		foreach($ibis_array['responses'] as $response){
+			$responses .= $form_handler->get_field_html($response);
+		}
 	}
-	//Adding a new response form at the end to add new response by passing empty values to CreateResponseForm funciton
-	$responses .= fnCreateResponseForm('','','');
-	$form = sprintf($form,$responses);
+	
+	$form = $form_handler->get_edit_form($responses);
 
 	return $form;
 }
@@ -182,7 +145,7 @@ function fnIBISSaveResponses($request,$editpage,$ibis_array){
 	}
 	
 	//Convert IBIS array to YAML
-	$content = fnIBISArrayToYaml($ibis_array);
+	$content = YAMLHandler::ArrayToYAML($ibis_array);
 	
 	// Update the current page content with new responses
 	$editpage->mArticle->updateArticle( $content, '', false, false, false, '' );
@@ -194,7 +157,6 @@ function fnIBISEditPage($ibis_title,$type,$page_title=''){
 		$newPage = True;
 		$id = fnIBISGetNextPageID();
 		$page_title = "IBIS_".$id;
-		$body = fnIBISBuildYAMLConversation($ibis_title,$type);
 	}
 	$title = Title::newFromText($page_title);
 	$article = new Article($title);
@@ -203,7 +165,7 @@ function fnIBISEditPage($ibis_title,$type,$page_title=''){
 	}
 	else{
 		$content = $article->getContent();
-		$ibis = fnIBISYamlToArray($content);
+		$ibis = YAMLHandler::YAMLToArray($content);
 		$body = fnIBISBuildYAMLConversation($ibis_title,$type,$ibis);
 	}
 	$article->doEdit($body,'');
@@ -225,7 +187,7 @@ function fnIBISAddResponse($ibis_array,$title,$type,$page_title)
 function fnIBISBuildYAMLConversation($title,$type,$ibis=array()){
 	$ibis['title'] = $title;
 	$ibis['type'] = $type;
-	return fnIBISArrayToYaml($ibis);
+	return YAMLHandler::ArrayToYAML($ibis);
 }
 
 function fnIBISGetNextPageID(){
@@ -237,13 +199,4 @@ function fnIBISGetNextPageID(){
 	return $next_id;
 }
 
-// Yaml wrappers
-
-function fnIBISYamlToArray($yaml){
-	return Spyc::YAMLLoad($yaml);
-}
-
-function fnIBISArrayToYaml($array){
-	return Spyc::YAMLDump($array);
-}
 ?>
