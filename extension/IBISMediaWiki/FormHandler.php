@@ -1,5 +1,14 @@
 <?php
+require_once("YAMLHandler.php");
 class FormHandler {
+	function __construct($ibis){
+		if(gettype($ibis)=='array'){
+			$this->ibis = $ibis;
+		}
+		else{
+			$this->ibis = YAMLHandler::YAMLToArray($ibis);
+		}
+	}
 	function fnGetSelectedTypeMap(){
 		return array(
 			'%issue%' => '',
@@ -50,10 +59,19 @@ class FormHandler {
 		return $this->fnCreateResponseForm($field["title"], $field["type"], $field["node"]);
 	}
 	
-	function get_edit_form($responses_html) {
+	function get_edit_form() {
 		$form = $this->fnGetEditFormTemplate();
-		//Adding a new response form at the end to add new response by passing empty values to CreateResponseForm funciton
-		$responses_html .= $this->get_field_html();
+		// A varaible to hold all the response form html
+		$responses_html = '';
+		//Building pre-filled response form
+		if(isset($this->ibis['responses'])){
+			foreach($this->ibis['responses'] as $response){
+				$responses_html .= $this->get_field_html($response);
+			}
+		}
+		//Adding a new response form at the end of prefilled responses(if applicable)	
+		$responses_html .= $this->get_field_html();		
+		
 		return sprintf($form,$responses_html);
 	}
 }

@@ -22,8 +22,9 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 	function case_for_response_form_exists($html_output){
 		$this->assertEquals(1, preg_match('/<select name="type\[\]">(.|\s)*?<br \/><br \/>/', $html_output));
 	}
+	
 	function test_get_field_html_should_render_issue_field_with_prefilled_data_when_passing_response_array() {
-		$form = new FormHandler();
+		$form = new FormHandler('');
 		$input = array("type"=>"position", "title"=>"sample node", "node"=>"IBIS_15");
 		$html_output = $form->get_field_html($input);
 		//Check if only the given type is selected
@@ -40,17 +41,16 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_get_field_html_should_create_issue_field_without_any_data_when_passing_nothing(){
-		$form = new FormHandler();
+		$form = new FormHandler('');
 		$html_output = $form->get_field_html();
 		//
 		$this->cases_for_new_response_form($html_output);
 	}
 	
 	function test_get_edit_form_should_render_edit_form_with_responses(){
-		$form = new FormHandler();
-		$input = array("type"=>"issue", "title"=>"sample node", "node"=>"IBIS_15");
-		$responses_html = $form->get_field_html($input);
-		$edit_form_html = $form->get_edit_form($responses_html);
+		$ibis['responses'] = array("type"=>"issue", "title"=>"sample node", "node"=>"IBIS_15");
+		$form = new FormHandler($ibis);
+		$edit_form_html = $form->get_edit_form();
 		//Check if the form tag exists
 		$this->case_for_form_tag_exists($edit_form_html);
 		//Check if responses html exists
@@ -58,8 +58,8 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_get_edit_form_should_have_a_new_response_form_at_the_bottom(){
-		$form = new FormHandler();
-		$edit_form_html = $form->get_edit_form('');
+		$form = new FormHandler('');
+		$edit_form_html = $form->get_edit_form();
 		//Check if the form tag exists
 		$this->case_for_form_tag_exists($edit_form_html);
 		//Check if responses html exists
