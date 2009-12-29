@@ -36,9 +36,9 @@ function fnIBISPageRenderer( &$out, &$text ){
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		$title = $wgTitle;
 		$path = $wgScript;
-		$display = new DisplayHandler($title,$path);
+		$display = new DisplayHandler($title);
 		if($display->isConvertionApplicableForThisPage()){
-			$text = $display->getPageHTML();
+			$text = $display->getPageHTML($path);
 		}
 	}
 	return true;
@@ -48,6 +48,10 @@ function fnIBISEdit( &$editpage)
 {	
 	global $wgOut,$wgRequest,$wgTitle;
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+		$display = new DisplayHandler($wgTitle);
+		if(!$display->isConvertionApplicableForThisPage()){
+			return True;
+		}
 		$type_map = array(
 			'issue' => 'Issue',
 			'position' => 'Position',

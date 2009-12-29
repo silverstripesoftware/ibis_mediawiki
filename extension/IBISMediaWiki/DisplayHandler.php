@@ -1,10 +1,9 @@
 <?php
 require_once("YAMLHandler.php");
 class DisplayHandler {
-	function __construct($title,$path){
+	function __construct($title){
 		$article = new Article($title);
 		$this->content = $article->getContent();
-		$this->path = $path;
 	}
 	function isConvertionApplicableForThisPage(){
 		$array = YAMLHandler::YAMLToArray($this->content);
@@ -16,10 +15,10 @@ class DisplayHandler {
 			return False;
 		}
 	}
-	function getPageHTML(){
+	function getPageHTML($path){
 		$template_main = '<div class="ibis_conversation">
 		<h1 class="type_%s">%s</h1>';
-		$template_response = '<li class="type_%s"><a href="'.$this->path.'/%s">%s</a></li>';
+		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a></li>';
 		//Main HTML
 		$main = sprintf($template_main,$this->ibis['type'],$this->ibis['title']);
 		//Response HTML
