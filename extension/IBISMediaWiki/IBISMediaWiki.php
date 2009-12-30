@@ -14,6 +14,7 @@ if( !defined( 'MEDIAWIKI' ) ) {
 require_once('FormHandler.php');
 require_once('PageHandler.php');
 require_once('DisplayHandler.php');
+require_once("UserHandler.php");
 
 $wgExtensionFunctions[] = 'fnIBISMediaWiki';
 $wgExtensionCredits['other'][] = array(
@@ -46,12 +47,15 @@ function fnIBISPageRenderer( &$out, &$text ){
 
 function fnIBISEdit( &$editpage)
 {	
-	global $wgOut,$wgRequest,$wgTitle;
+	global $wgOut,$wgRequest,$wgTitle,$wgUser;
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		$display = new DisplayHandler($wgTitle);
 		if(!$display->isConvertionApplicableForThisPage()){
 			return True;
 		}
+		//IBIS User Handler for current user
+		$user = new UserHandler($wgUser);
+		
 		$type_map = array(
 			'issue' => 'Issue',
 			'position' => 'Position',
@@ -64,7 +68,7 @@ function fnIBISEdit( &$editpage)
 		
 		if ( $wgRequest->wasPosted() ) {		
 			if($wgRequest->getCheck('save')){
-				fnIBISSaveResponses($wgRequest,$editpage->mTitle->getText());
+				fnIBISSaveResponses($wgRequest,$editpage->mTitle->getText(),$user);
 				$wgOut->redirect($editpage->mTitle->getFullUrl());
 			}
 			if($wgRequest->getCheck('cancel')){
@@ -72,7 +76,7 @@ function fnIBISEdit( &$editpage)
 			}
 		}
 		// Render Edit form
-		$form_handler = new FormHandler($content);
+		$form_handler = new FormHandler($user,$content);
 		$wgOut->addHTML	($form_handler->get_edit_form());
 		
 		return false;
@@ -82,20 +86,22 @@ function fnIBISEdit( &$editpage)
 	}
 }
 
-function fnIBISSaveResponses($request,$page_title){
-	$page_handler = new PageHandler($page_title);
+function fnIBISSaveResponses($request,$page_title,$user){
+	$page_handler = new PageHandler($page_title,$user);
 	
 	$types = $request->data['type'];
 	$titles = $request->data['ibis_title'];
 	$nodes = $request->data['node'];
+	$users = $request->data['user'];
 	for($i=0;$i<count($titles);$i++){
 		$title = $titles[$i];
 		$type = $types[$i];
 		$node = $nodes[$i];
+		$user = $users[$i];
 		
 		//Add the response only if its title is not empty
 		if($title!=''){
-			$page_handler->AddResponse($title,$type,$node);
+			$page_handler->AddResponse($title,$type,$node,$user);
 		}
 	}	
 	$page_handler->SavePage();

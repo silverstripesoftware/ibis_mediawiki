@@ -1,12 +1,28 @@
 <?php
 require_once("YAMLHandler.php");
 class PageHandler {
-	function __construct($current_page_title){
+	function __construct($current_page_title,$user){
+		$this->user = $user;
 		$this->title = $current_page_title;
 		$content = $this->_getContent($this->title);
 		$this->ibis = YAMLHandler::YAMLToArray($content);
-		// Removing the existing responses
-		unset($this->ibis['responses']);
+		// Removing the existing responses of current user
+		$this->_removeCurrentUserResponses();
+	}
+	
+	function _removeCurrentUserResponses(){
+		$filtered_ibis = array();
+		if($this->user->isAdminUser){
+			unset($this->ibis['responses']);
+		}
+		else{
+			foreach($this->ibis['responses'] as $response){
+				if($response['user']!=$this->user->id){
+					$filtered_ibis[] = $response;
+				}
+			}
+			$this->ibis['responses'] = $filtered_ibis;
+		}
 	}
 	
 	function _getObject($page_title){
@@ -49,7 +65,7 @@ class PageHandler {
 		return $page_title;
 	}
 	
-	function AddResponse($title,$type,$node){
+	function AddResponse($title,$type,$node,$user){
 		if($node==''){
 			$response['title'] = $title;
 			$response['type'] = $type;
@@ -62,6 +78,8 @@ class PageHandler {
 			$this->_editContent($node,$response);
 			$response['node'] = $node;
 		}
+		$response['user'] = $user;
+		
 		$this->ibis['responses'][] = $response;
 	}
 	
