@@ -1,13 +1,36 @@
 <?php
 require_once("YAMLHandler.php");
+
+function fnIBISSaveResponse($type,$title,$node,$user,$page_handler){
+	if($node==''){
+		$response['title'] = $title;
+		$response['type'] = $type;
+		$response['node'] = $page_handler->AddPage($response);
+	}
+	else{
+		$response = $page_handler->GetContent($node,True);
+		$response['title'] = $title;
+		$response['type'] = $type;
+		$page_handler->EditContent($node,$response);
+		$response['node'] = $node;
+	}
+	$response['user'] = $user;
+	
+	return $response;
+}
+
+class ArticleFactory {
+	function getArticle($node) {
+		$title = Title::newFromText($node);
+		return new Article($title);
+	}
+}
+
 class PageHandler {
-	function __construct($current_page_title,$user){
+	function __construct($current_page_title, $user){
+		$this->factory = new ArticleFactory();
 		$this->user = $user;
 		$this->title = $current_page_title;
-		$content = $this->_getContent($this->title);
-		$this->ibis = YAMLHandler::YAMLToArray($content);
-		// Removing the existing responses of current user
-		$this->_removeCurrentUserResponses();
 	}
 	
 	function _removeCurrentUserResponses(){
@@ -26,12 +49,16 @@ class PageHandler {
 	}
 	
 	function _getObject($page_title){
-		$title = Title::newFromText($page_title);
-		$article = new Article($title);
-		return $article;
+		return $this->factory->getArticle($page_title);
 	}
 	
-	function _getContent($title,$ibis=False){
+	function LoadCurrentPage() {
+		$this->ibis = $this->GetContent($this->title, True);
+		// Removing the existing responses of current user
+		$this->_removeCurrentUserResponses();
+	}
+	
+	function GetContent($title,$ibis=False){
 		$article = $this->_getObject($title);
 		$content = $article->getContent();
 		if($ibis){
@@ -40,7 +67,7 @@ class PageHandler {
 		return $content;
 	}
 	
-	function _editContent($title,$content){
+	function EditContent($title,$content){
 		if(gettype($content)=='array'){
 			$content = YAMLHandler::ArrayToYAML($content);
 		}
@@ -59,33 +86,14 @@ class PageHandler {
 		return "IBIS_".$next_id;
 	}
 	
-	function _addPage($content){
+	function AddPage($content){
 		$page_title = $this->_getNextPageTitle();
-		$this->_editContent($page_title,$content);
+		$this->EditContent($page_title,$content);
 		return $page_title;
 	}
 	
-	function AddResponse($title,$type,$node,$user){
-		if($node==''){
-			$response['title'] = $title;
-			$response['type'] = $type;
-			$response['node'] = $this->_addPage($response);
-		}
-		else{
-			$response = $this->_getContent($node,True);
-			$response['title'] = $title;
-			$response['type'] = $type;
-			$this->_editContent($node,$response);
-			$response['node'] = $node;
-		}
-		$response['user'] = $user;
-		
-		$this->ibis['responses'][] = $response;
-	}
-	
 	function SavePage(){
-		$this->_editContent($this->title,$this->ibis);
-	}
-	
+		$this->EditContent($this->title,$this->ibis);
+	}	
 }
 ?>

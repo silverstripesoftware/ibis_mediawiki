@@ -2,6 +2,14 @@
 require_once 'PHPUnit/Framework.php';
 require_once 'FormHandler.php';
 
+class User{
+	function __construct($id){
+		$this->id = $id;
+		$this->isAdminUser = $id==1?true:false;
+		$this->isGuest = $id==0?true:false;
+	}
+}
+
 class FormHanderTest extends PHPUnit_Framework_TestCase {
 	function cases_for_new_response_form($html_output){
 		//Check if none of the type is selected
@@ -24,7 +32,8 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_get_field_html_should_render_issue_field_with_prefilled_data_when_passing_response_array() {
-		$form = new FormHandler('');
+		$user = new User(1);
+		$form = new FormHandler($user,'');
 		$input = array("type"=>"position", "title"=>"sample node", "node"=>"IBIS_15");
 		$html_output = $form->get_field_html($input);
 		//Check if only the given type is selected
@@ -41,15 +50,16 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_get_field_html_should_create_issue_field_without_any_data_when_passing_nothing(){
-		$form = new FormHandler('');
+		$user = new User(1);
+		$form = new FormHandler($user,'');
 		$html_output = $form->get_field_html();
-		//
 		$this->cases_for_new_response_form($html_output);
 	}
 	
 	function test_get_edit_form_should_render_edit_form_with_responses(){
-		$ibis['responses'] = array("type"=>"issue", "title"=>"sample node", "node"=>"IBIS_15");
-		$form = new FormHandler($ibis);
+		$ibis['responses'][] = array("type"=>"issue", "title"=>"sample node", "node"=>"IBIS_15");
+		$user = new User(1);
+		$form = new FormHandler($user,$ibis);
 		$edit_form_html = $form->get_edit_form();
 		//Check if the form tag exists
 		$this->case_for_form_tag_exists($edit_form_html);
@@ -58,7 +68,8 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_get_edit_form_should_have_a_new_response_form_at_the_bottom(){
-		$form = new FormHandler('');
+		$user = new User(1);
+		$form = new FormHandler($user,'');
 		$edit_form_html = $form->get_edit_form();
 		//Check if the form tag exists
 		$this->case_for_form_tag_exists($edit_form_html);
@@ -66,6 +77,25 @@ class FormHanderTest extends PHPUnit_Framework_TestCase {
 		$this->case_for_response_form_exists($edit_form_html);
 		//Check if new response form exists at the bottom
 		$this->cases_for_new_response_form($edit_form_html);
+	}
+	
+	function test_get_edit_form_should_not_have_other_user_responses(){
+		$ibis['responses'][] = array("type"=>"issue", "title"=>"sample node", "node"=>"IBIS_15","user"=>"1");
+		$user = new User(2);
+		$form = new FormHandler($user,$ibis);
+		$edit_form_html = $form->get_edit_form();
+		$this->assertEquals(0,preg_match('/value="sample node"/', $edit_form_html));
+		$this->assertEquals(0,preg_match('/name="user\[\]" value="1"/', $edit_form_html));
+		$this->assertEquals(0,preg_match('/name="node\[\]" value="IBIS_15"/', $edit_form_html));
+	}
+	function test_get_edit_form_should_have_user_own_responses(){
+		$ibis['responses'][] = array("type"=>"issue", "title"=>"sample node", "node"=>"IBIS_15","user"=>"1");
+		$user = new User(1);
+		$form = new FormHandler($user,$ibis);
+		$edit_form_html = $form->get_edit_form();
+		$this->assertEquals(1,preg_match('/value="sample node"/', $edit_form_html));
+		$this->assertEquals(1,preg_match('/name="user\[\]" value="1"/', $edit_form_html));
+		$this->assertEquals(1,preg_match('/name="node\[\]" value="IBIS_15"/', $edit_form_html));
 	}
 }
 

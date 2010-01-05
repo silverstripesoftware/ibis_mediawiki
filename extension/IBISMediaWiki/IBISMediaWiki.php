@@ -27,9 +27,18 @@ $wgExtensionCredits['other'][] = array(
 function fnIBISMediaWiki()
 {
 	global $wgHooks;
+	$wgHooks['SkinTemplateContentActions'][] = 'fnIBISTabsHandler';
 	$wgHooks['AlternateEdit'][] = 'fnIBISEdit';
 	$wgHooks['OutputPageBeforeHTML'][] = 'fnIBISPageRenderer';
+}
 
+function fnIBISTabsHandler(&$content_actions){
+	global $wgTitle,$wgUser;
+	$user = new UserHandler($wgUser);
+	if($user->isGuest){
+		unset($content_actions['viewsource']);
+	}
+	return True;
 }
 
 function fnIBISPageRenderer( &$out, &$text ){
@@ -85,14 +94,14 @@ function fnIBISEdit( &$editpage)
 		return True;
 	}
 }
-
 function fnIBISSaveResponses($request,$page_title,$user){
-	$page_handler = new PageHandler($page_title,$user);
-	
 	$types = $request->data['type'];
 	$titles = $request->data['ibis_title'];
 	$nodes = $request->data['node'];
 	$users = $request->data['user'];
+	
+	$page_handler = new PageHandler($page_title,$user);
+	$page_handler->LoadCurrentPage();
 	for($i=0;$i<count($titles);$i++){
 		$title = $titles[$i];
 		$type = $types[$i];
@@ -101,10 +110,13 @@ function fnIBISSaveResponses($request,$page_title,$user){
 		
 		//Add the response only if its title is not empty
 		if($title!=''){
-			$page_handler->AddResponse($title,$type,$node,$user);
+			$response = fnIBISSaveResponse($type,$title,$node,$user,$page_handler);
+			$page_handler->ibis['responses'][] = $response;
 		}
+		
 	}	
 	$page_handler->SavePage();
 	return;
 }
+
 ?>
