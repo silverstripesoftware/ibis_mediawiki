@@ -76,7 +76,7 @@ class PageHandler {
 		return true;
 	}
 	
-	function _getNextPageTitle(){	
+	function GetNextPageTitle(){	
 		$dbr = &wfGetDB( DB_SLAVE );
 		$q = "select max(page_id) as max_page_id from page";
 		$res = $dbr->query($q);
@@ -87,7 +87,7 @@ class PageHandler {
 	}
 	
 	function AddPage($content){
-		$page_title = $this->_getNextPageTitle();
+		$page_title = $this->GetNextPageTitle();
 		$this->EditContent($page_title,$content);
 		return $page_title;
 	}
