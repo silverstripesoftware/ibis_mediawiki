@@ -35,16 +35,18 @@ class PageHandler {
 	
 	function _removeCurrentUserResponses(){
 		$filtered_ibis = array();
-		if($this->user->isAdminUser){
-			unset($this->ibis['responses']);
-		}
-		else{
-			foreach($this->ibis['responses'] as $response){
-				if($response['user']!=$this->user->id){
-					$filtered_ibis[] = $response;
-				}
+		if(isset($this->ibis['responses'])){
+			if($this->user->isAdminUser){
+				unset($this->ibis['responses']);
 			}
-			$this->ibis['responses'] = $filtered_ibis;
+			else{
+				foreach($this->ibis['responses'] as $response){
+					if($response['user']!=$this->user->id){
+						$filtered_ibis[] = $response;
+					}
+				}
+				$this->ibis['responses'] = $filtered_ibis;
+			}
 		}
 	}
 	
@@ -52,10 +54,15 @@ class PageHandler {
 		return $this->factory->getArticle($page_title);
 	}
 	
-	function LoadCurrentPage() {
+	function LoadCurrentPage($removeResponse=True) {
 		$this->ibis = $this->GetContent($this->title, True);
+		if(!(isset($this->ibis['user']))){
+			$this->ibis['user']='1';
+		}
 		// Removing the existing responses of current user
-		$this->_removeCurrentUserResponses();
+		if($removeResponse){
+			$this->_removeCurrentUserResponses();
+		}
 	}
 	
 	function GetContent($title,$ibis=False){

@@ -40,7 +40,24 @@ class FormHandler {
 				<input type="submit" value="Cancel" name="cancel"/>
 			</form>';
 	}
-	
+	function fnIBISDiscussionTemplate(){
+		$html = '
+		<form method="post" action="">
+			<select name="type">
+				<option value="issue" %issue%>Issue</option>
+				<option value="position" %position% >Position</option>
+				<option value="supporting_argument" %supporting_argument% >Supporting Argument</option>
+				<option value="opposing_argument" %opposing_argument% >Opposing Argument</option>
+			</select>
+			<input type="text" name="ibis_title" size="50" value="%s"/>
+			<input type="hidden" name="user" value="%s" />
+			<br /><br />
+			<input type="submit" value="Save Discussion" name="save">
+			<input type="submit" value="Cancel" name="cancel"/>
+		</form>
+		';
+		return $html;
+	}
 
 	function fnCreateResponseForm($title,$type,$node,$user){
 		// A Map of response type and selected
@@ -68,7 +85,7 @@ class FormHandler {
 		$form = $this->fnGetEditFormTemplate();
 		// A varaible to hold all the response form html
 		$responses_html = '';
-		//Building pre-filled response form
+		// Building pre-filled response form
 		if(isset($this->ibis['responses'])){
 			foreach($this->ibis['responses'] as $response){
 				if(!isset($response['user']) || $response['user']==''){
@@ -80,10 +97,24 @@ class FormHandler {
 				}				
 			}
 		}
-		//Adding a new response form at the end of prefilled responses(if applicable)	
+		// Adding a new response form at the end of prefilled responses(if applicable)	
 		$responses_html .= $this->get_field_html();		
 		
 		return sprintf($form,$responses_html);
+	}
+	
+	function get_discussion_form(){
+		$title=isset($this->ibis['title'])?$this->ibis['title']:"";
+		$type=isset($this->ibis['type'])?$this->ibis['type']:"";
+		$user=isset($this->ibis['user'])?$this->ibis['user']:$this->user->id;
+		$template = $this->fnIBISDiscussionTemplate();
+		$selected_type = $this->fnGetSelectedTypeMap();
+		if($type){
+			$selected_type["%".$type."%"] = 'selected';
+		}
+		$template = str_replace(array_keys($selected_type),array_values($selected_type),$template);
+		$html = sprintf($template,$title,$user);
+		return $html;
 	}
 }
 ?>

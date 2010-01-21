@@ -10,6 +10,7 @@ if( !defined( 'MEDIAWIKI' ) ) {
 	echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
 	die();
 }
+require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 require_once('FormHandler.php');
 require_once('PageHandler.php');
@@ -34,63 +35,64 @@ function fnIBISMediaWiki()
 	$wgHooks['UnknownAction'][] = 'fnIBISDiscussionHandler';
 }
 
-function fnIBISDiscussionHTML(){
-	$html = '
-	<form method="post" action="">
-		<select name="type">
-			<option value="issue" %issue%>Issue</option>
-			<option value="position" %position% >Position</option>
-			<option value="supporting_argument" %supporting_argument% >Supporting Argument</option>
-			<option value="opposing_argument" %opposing_argument% >Opposing Argument</option>
-		</select>
-		<input type="text" name="ibis_title" size="50" value=""/>
-		<br /><br />
-		<input type="submit" value="Save Discussion" name="add">
-		<input type="submit" value="Cancel" name="cancel"/>
-	</form>
-	';
-	return $html;
-}
 
 function fnIBISDiscussionHandler($action, $article){
 	global $wgOut,$wgRequest,$wgUser,$wgTitle;
+	$current_title = $article->getTitle();
 	$user = new UserHandler($wgUser);
-	if($action=="newdiscussion"){
-		$wgOut->setPageTitle("Add new discussion");
-		
+	if($action=="discussion"){
+		$op = $wgRequest->data['op'];
 		if($wgRequest->wasPosted()){
-			if($wgRequest->getCheck('add')){
-				$ibis_title = $wgRequest->data['ibis_title'];
-				$type = $wgRequest->data['type'];
-				$discussionHandler = new DiscussionHandler($ibis_title,$type,$user);
-				$title = $discussionHandler->SaveDiscussion();
-				$titleObj = Title::newFromText($title);
-				$wgOut->redirect($titleObj->getFullUrl());
+			if($wgRequest->getCheck('save')){
+				if(isset($_SESSION['ibis'])){
+					$ibis = unserialize($_SESSION['ibis']);
+					unset($_SESSION['ibis']);
+				}
+				else{
+					$ibis = array();
+				}
+				$ibis['title'] = $wgRequest->data['ibis_title'];
+				$ibis['type'] = $wgRequest->data['type'];
+				$ibis['user'] = $wgRequest->data['user'];
+				$discussionHandler = new DiscussionHandler($ibis);
+				if($op=="new"){
+					$title = $discussionHandler->AddDiscussion();
+					$titleObj = Title::newFromText($title);
+					$wgOut->redirect($titleObj->getFullUrl());
+				}
+				elseif($op=="edit"){
+					$discussionHandler->ModifyDiscussion($current_title->getText());
+					$wgOut->redirect($current_title->getFullUrl());
+				}
 			}
 			if($wgRequest->getCheck('cancel')){
-				$title = $article->getTitle();
-				$wgOut->redirect($title->getFullUrl());
+				$wgOut->redirect($current_title->getFullUrl());
 			}
 		}
 		else{
-			$wgOut->addHTML(fnIBISDiscussionHTML());
+			if($op=="new"){
+				$wgOut->setPageTitle("Add new discussion");
+				$form = new FormHandler($user,array());
+				$wgOut->addHTML($form->get_discussion_form());
+			}
+			elseif($op=="edit"){
+				$title = $wgTitle->getText();
+				$page = new PageHandler($title,$user);
+				$page->LoadCurrentPage(False);
+				if (($page->ibis['user'] == $user->id) or $user->isAdminUser){
+					$_SESSION['ibis'] = serialize($page->ibis);
+					FB::info(print_r($_SESSION,true));
+					$wgOut->setPageTitle($title);
+					$form = new FormHandler($user,$page->ibis);
+					$wgOut->addHTML($form->get_discussion_form());
+				}
+				else{
+					$wgOut->setPageTitle("Warning!");
+					$wgOut->addHTML('<strong style="color:red">Please do not try to edit other user discussion. You can still add responses to it.</strong>');
+				}
+			}
 		}
-		return False;
-	}
-	elseif($action="editdiscussion"){
-		$title = $wgTitle->getText();
-		$page = new PageHandler($title,$user);
-		$page->LoadCurrentPage();
-		if ($page->ibis['user'] == $user->id){
-			$wgOut->setPageTitle($title);
-			$wgOut->addHTML("To be implemented");
-			return False;
-		}
-		else{
-			$wgOut->setPageTitle("Warning!");
-			$wgOut->addHTML('<strong style="color:red">Please do not try to edit other user discussion. You can still add responses to it.</strong>');
-			return False;
-		}
+		return false;
 	}
 	return True;
 }
@@ -103,7 +105,7 @@ function fnIBISTabsHandler(&$content_actions){
 	}
 	$content_actions['new_discussion'] = Array(
 	'text' => "New Discussion",
-	'href' => $wgTitle->getLocalURL("action=newdiscussion"),
+	'href' => $wgTitle->getLocalURL("action=discussion&op=new"),
 	);
 
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
@@ -111,11 +113,11 @@ function fnIBISTabsHandler(&$content_actions){
 		if($display->isConvertionApplicableForThisPage()){
 			$content_actions['edit']['text'] = "Add response";
 			$page = new PageHandler($wgTitle->getText(),$user);
-			$page->LoadCurrentPage();
-			if ($page->ibis['user'] == $user->id){
+			$page->LoadCurrentPage(False);
+			if (($page->ibis['user'] == $user->id) or $user->isAdminUser){
 				$content_actions['edit_discussion'] = Array(
 					'text' => "Edit Discussion",
-					'href' => $wgTitle->getLocalURL("action=editdiscussion"),
+					'href' => $wgTitle->getLocalURL("action=discussion&op=edit"),
 				);
 			}
 		}
@@ -209,5 +211,4 @@ function fnIBISSaveResponses($request,$page_title,$user){
 	$page_handler->SavePage();
 	return;
 }
-
 ?>

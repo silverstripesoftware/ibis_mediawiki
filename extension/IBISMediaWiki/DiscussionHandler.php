@@ -2,18 +2,21 @@
 require_once("PageHandler.php");
 
 class DiscussionHandler extends PageHandler {
-	function __construct($ibis_title, $type, $user){
+	function __construct($ibis){
 		$this->factory = new ArticleFactory();
-		$this->ibis_title = $ibis_title;
-		$this->type = $type;
-		$this->user = $user;
+		$this->ibis = $ibis;
 	}
-
-	function SaveDiscussion(){
+	
+	function AddDiscussion(){
 		$page_title = $this->GetNextPageTitle();
-		$content = array("title"=>$this->ibis_title,"type"=>$this->type,"user"=>$this->user->id);
-		$this->EditContent($page_title,$content);
+		$this->_save($page_title);
 		return $page_title;
+	}
+	function _save($page_title){
+		$this->EditContent($page_title,$this->ibis);
+	}
+	function ModifyDiscussion($page_title){
+		$this->_save($page_title);
 	}
 }
 ?>
