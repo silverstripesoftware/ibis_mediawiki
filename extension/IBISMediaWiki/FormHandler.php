@@ -1,6 +1,8 @@
 <?php
 require_once("YAMLHandler.php");
-class FormHandler {
+require_once("PageHandler.php");
+require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
+class FormHandler extends PageHandler{
 	function __construct($user,$ibis){
 		$this->user = $user;
 		if(gettype($ibis)=='array'){
@@ -87,14 +89,17 @@ class FormHandler {
 		$responses_html = '';
 		// Building pre-filled response form
 		if(isset($this->ibis['responses'])){
+			$this->factory = new ArticleFactory();
 			foreach($this->ibis['responses'] as $response){
 				if(!isset($response['user']) || $response['user']==''){
 					$response['user'] = '1';
 				}
 				$response_user = (int)$response['user'];
 				if($response_user == $this->user->id || $this->user->isAdminUser){
-					$responses_html .= $this->get_field_html($response);
-				}				
+					$ibis = $this->GetContent($response['node'],True);
+					$ibis['node'] = $response['node'];
+					$responses_html .= $this->get_field_html($ibis);
+				}
 			}
 		}
 		// Adding a new response form at the end of prefilled responses(if applicable)	

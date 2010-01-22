@@ -1,7 +1,6 @@
 <?php
 require_once 'PHPUnit/Framework.php';
 require_once 'FormHandler.php';
-
 class User{
 	function __construct($id){
 		$this->id = $id;

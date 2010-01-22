@@ -1,6 +1,8 @@
 <?php
 require_once("YAMLHandler.php");
-class DisplayHandler {
+require_once("PageHandler.php");
+
+class DisplayHandler extends PageHandler{
 	function __construct($title){
 		$article = new Article($title);
 		$this->content = $article->getContent();
@@ -24,8 +26,13 @@ class DisplayHandler {
 		//Response HTML
 		$responses = '';
 		if(isset($this->ibis['responses'])){
+			$this->factory = new ArticleFactory();
 			foreach($this->ibis['responses'] as $response){
-				$responses .= sprintf($template_response,$response['type'],$response['node'],$response['title']);
+				$node = $response['node'];
+				$ibis = $this->GetContent($node,True);
+				$type = $ibis['type'];
+				$title = $ibis['title'];
+				$responses .= sprintf($template_response,$type,$node,$title);
 			}
 			if($responses){
 				$html = sprintf("%s\n<ul>%s</ul></div>",$main,$responses);
@@ -36,6 +43,5 @@ class DisplayHandler {
 		}
 		return $html;
 	}
-	
 }
 ?>
