@@ -17,6 +17,7 @@ require_once('PageHandler.php');
 require_once('DisplayHandler.php');
 require_once('UserHandler.php');
 require_once('DiscussionHandler.php');
+require_once('TabsHandler.php');
 
 $wgExtensionFunctions[] = 'fnIBISMediaWiki';
 $wgExtensionCredits['other'][] = array(
@@ -81,7 +82,6 @@ function fnIBISDiscussionHandler($action, $article){
 				$page->LoadCurrentPage(False);
 				if (($page->ibis['user'] == $user->id) or $user->isAdminUser){
 					$_SESSION['ibis'] = serialize($page->ibis);
-					FB::info(print_r($_SESSION,true));
 					$wgOut->setPageTitle($title);
 					$form = new FormHandler($user,$page->ibis);
 					$wgOut->addHTML($form->get_discussion_form());
@@ -99,32 +99,24 @@ function fnIBISDiscussionHandler($action, $article){
 function fnIBISTabsHandler(&$content_actions){
 	global $wgTitle,$wgUser;
 	$user = new UserHandler($wgUser);
-	if($user->isGuest){
-		unset($content_actions['viewsource']);
+	$tabs_handler = new TabsHandler($content_actions,$user,$wgTitle);
+	if($user->isGuest){	
+		$tabs_handler->RemoveEditTab();
 		return True;
 	}
-	$content_actions['new_discussion'] = Array(
-	'text' => "New Discussion",
-	'href' => $wgTitle->getLocalURL("action=discussion&op=new"),
-	);
-
-	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+	if($tabs_handler->isIBISNode()){
 		$display = new DisplayHandler($wgTitle);
 		if($display->isConvertionApplicableForThisPage()){
-			$content_actions['edit']['text'] = "Add response";
-			$page = new PageHandler($wgTitle->getText(),$user);
-			$page->LoadCurrentPage(False);
-			if (($page->ibis['user'] == $user->id) or $user->isAdminUser){
-				$content_actions['edit_discussion'] = Array(
-					'text' => "Edit Discussion",
-					'href' => $wgTitle->getLocalURL("action=discussion&op=edit"),
-				);
-			}
+			$tabs_handler->changeTabName('edit','Add response');
+			$tabs_handler->LoadCurrentPage(False);
+			$tabs_handler->addEditDiscussionTabIfApplicable();
 		}
 		else{
-			unset($content_actions['edit']);
+			$tabs_handler->removeTab('edit');
 		}
 	}
+	$tabs_handler->addNewTab("new_discussion","New Dicussion","new");
+
 	return True;
 }
 
