@@ -41,6 +41,7 @@ class TabsHandler extends PageHandler{
 		unset($this->tabs[$key]);
 	}
 	function addEditDiscussionTabIfApplicable(){
+		$this->LoadCurrentPage(False);
 		if (($this->ibis['user'] == $this->user->id) or $this->user->isAdminUser){
 			$this->addNewTab('edit_discussion','Edit Discussion','edit');
 		}

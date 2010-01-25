@@ -32,8 +32,9 @@ class TestArticleFactory {
 }
 
 class Article {
-	function __construct($node, $data) {
-		$this->data = $data;
+	function __construct($node) {
+		global $article_data;
+		$this->data = $article_data;
 	}
 	
 	function getContent() {

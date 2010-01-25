@@ -38,59 +38,28 @@ function fnIBISMediaWiki()
 
 
 function fnIBISDiscussionHandler($action, $article){
-	global $wgOut,$wgRequest,$wgUser,$wgTitle;
+	global $wgOut,$wgRequest,$wgUser;
 	$current_title = $article->getTitle();
 	$user = new UserHandler($wgUser);
 	if($action=="discussion"){
 		$op = $wgRequest->data['op'];
+		$discussionHandler = new DiscussionHandler($current_title,$user,$op);
 		if($wgRequest->wasPosted()){
 			if($wgRequest->getCheck('save')){
-				if(isset($_SESSION['ibis'])){
-					$ibis = unserialize($_SESSION['ibis']);
-					unset($_SESSION['ibis']);
-				}
-				else{
-					$ibis = array();
-				}
-				$ibis['title'] = $wgRequest->data['ibis_title'];
-				$ibis['type'] = $wgRequest->data['type'];
-				$ibis['user'] = $wgRequest->data['user'];
-				$discussionHandler = new DiscussionHandler($ibis);
-				if($op=="new"){
-					$title = $discussionHandler->AddDiscussion();
-					$titleObj = Title::newFromText($title);
-					$wgOut->redirect($titleObj->getFullUrl());
-				}
-				elseif($op=="edit"){
-					$discussionHandler->ModifyDiscussion($current_title->getText());
-					$wgOut->redirect($current_title->getFullUrl());
-				}
+				$title = $wgRequest->data['ibis_title'];
+				$type = $wgRequest->data['type'];
+				$user = $wgRequest->data['user'];
+				$url = $discussionHandler->SaveDiscussionForm($title,$type,$user);
+				$wgOut->redirect($url);
 			}
 			if($wgRequest->getCheck('cancel')){
 				$wgOut->redirect($current_title->getFullUrl());
 			}
 		}
 		else{
-			if($op=="new"){
-				$wgOut->setPageTitle("Add new discussion");
-				$form = new FormHandler($user,array());
-				$wgOut->addHTML($form->get_discussion_form());
-			}
-			elseif($op=="edit"){
-				$title = $wgTitle->getText();
-				$page = new PageHandler($title,$user);
-				$page->LoadCurrentPage(False);
-				if (($page->ibis['user'] == $user->id) or $user->isAdminUser){
-					$_SESSION['ibis'] = serialize($page->ibis);
-					$wgOut->setPageTitle($title);
-					$form = new FormHandler($user,$page->ibis);
-					$wgOut->addHTML($form->get_discussion_form());
-				}
-				else{
-					$wgOut->setPageTitle("Warning!");
-					$wgOut->addHTML('<strong style="color:red">Please do not try to edit other user discussion. You can still add responses to it.</strong>');
-				}
-			}
+			$discussionHandler->RenderDiscussionForm();
+			$wgOut->setPageTitle($discussionHandler->outTitle);
+			$wgOut->addHTML($discussionHandler->outHTML);
 		}
 		return false;
 	}
@@ -108,7 +77,6 @@ function fnIBISTabsHandler(&$content_actions){
 		$display = new DisplayHandler($wgTitle);
 		if($display->isConvertionApplicableForThisPage()){
 			$tabs_handler->changeTabName('edit','Add response');
-			$tabs_handler->LoadCurrentPage(False);
 			$tabs_handler->addEditDiscussionTabIfApplicable();
 		}
 		else{

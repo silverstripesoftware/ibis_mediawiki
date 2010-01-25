@@ -7,7 +7,8 @@ require_once("DummyClasses.php");
 
 class PageHandlerTest extends PHPUnit_Framework_TestCase {
 	function get_page_handler($article_data,$user_id) {
-		$this->article = new Article('', $article_data);
+		$this->article = new Article('');
+		$this->article->data = $article_data;
 		$user = new User($user_id);
 		$page_handler = new PageHandler("IBIS_15", $user);
 		$page_handler->factory = new TestArticleFactory($this->article);
@@ -16,14 +17,12 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_GetContent_should_return_yaml_data_if_ibis_False() {
-		
 		$page_handler = $this->get_page_handler($article_data,1);
 		$content = $page_handler->GetContent("IBIS_15");
 		$this->assertEquals($article_data, $content);
 	}
 	
 	function test_GetContent_should_transform_data_to_array_if_ibis_True() {
-		
 		$page_handler = $this->get_page_handler($article_data,1);
 		$content = $page_handler->GetContent("IBIS_15", True);
 		$this->assertEquals("Sample Issue", $content["title"]);
