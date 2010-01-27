@@ -37,9 +37,7 @@ class DiscussionHandler extends PageHandler {
 			}
 		}
 		return False;
-	}
-	
-	
+	}	
 	function RenderDiscussionForm(){
 		$success = $this->_loadRender();
 		if($success){
