@@ -1,5 +1,6 @@
 <?php
 require_once("PageHandler.php");
+require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 class DiscussionHandler extends PageHandler {
 	function __construct($title,$user,$op){
@@ -27,7 +28,7 @@ class DiscussionHandler extends PageHandler {
 				$this->outTitle = "Edit discussion : ".$this->title->getText();
 				$this->ibis = $page->ibis;
 				if(isset($page->ibis['responses'])){
-					$_SESSION['ibis_responses'] = serialize($page->ibis['responses']);
+					$_SESSION[$this->title->getDBkey()] = serialize($page->ibis['responses']);
 				}
 				return True;
 			}
@@ -48,9 +49,9 @@ class DiscussionHandler extends PageHandler {
 	}
 	function _loadSave($title,$type,$user){
 		$this->ibis = array();
-		if(isset($_SESSION['ibis_responses'])){
-			$this->ibis['responses'] = unserialize($_SESSION['ibis_responses']);
-			unset($_SESSION['ibis_responses']);
+		if(isset($_SESSION[$this->title->getDBkey()])){
+			$this->ibis['responses'] = unserialize($_SESSION[$this->title->getDBkey()]);
+			unset($_SESSION[$this->title->getDBkey()]);
 		}
 		$this->ibis['title'] = $title;
 		$this->ibis['type'] = $type;

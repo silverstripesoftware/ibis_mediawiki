@@ -12,6 +12,9 @@ class FormHandler extends PageHandler{
 			$this->ibis = YAMLHandler::YAMLToArray($ibis);
 		}
 	}
+	function fnEscapeQuotes($data){
+		return preg_replace("/\"/","&quot;",$data);
+	}
 	function fnGetSelectedTypeMap(){
 		return array(
 			'%issue%' => '',
@@ -62,6 +65,8 @@ class FormHandler extends PageHandler{
 	}
 
 	function fnCreateResponseForm($title,$type,$node,$user){
+		//Escape Quote chars
+		$title = $this->fnEscapeQuotes($title);
 		// A Map of response type and selected
 		$selected_type = $this->fnGetSelectedTypeMap();
 		// Response template
@@ -109,7 +114,7 @@ class FormHandler extends PageHandler{
 	}
 	
 	function get_discussion_form(){
-		$title=isset($this->ibis['title'])?$this->ibis['title']:"";
+		$title=isset($this->ibis['title'])?$this->fnEscapeQuotes($this->ibis['title']):"";
 		$type=isset($this->ibis['type'])?$this->ibis['type']:"";
 		$user=isset($this->ibis['user'])?$this->ibis['user']:$this->user->id;
 		$template = $this->fnIBISDiscussionTemplate();
