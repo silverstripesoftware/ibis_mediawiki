@@ -3,19 +3,18 @@ require_once("YAMLHandler.php");
 
 function fnIBISSaveResponse($type,$title,$node,$user,$page_handler){
 	if($node==''){
-		$response['title'] = $title;
-		$response['type'] = $type;
-		$response['node'] = $page_handler->AddPage($response);
+		$page['title'] = $title;
+		$page['type'] = $type;
+		$response['node'] = $page_handler->AddPage($page);
 	}
 	else{
 		$response = $page_handler->GetContent($node,True);
-		$response['title'] = $title;
-		$response['type'] = $type;
-		$page_handler->EditContent($node,$response);
+		$page['title'] = $title;
+		$page['type'] = $type;
+		$page_handler->EditContent($node,$page);
 		$response['node'] = $node;
 	}
 	$response['user'] = $user;
-	
 	return $response;
 }
 
