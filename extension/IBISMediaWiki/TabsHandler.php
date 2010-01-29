@@ -32,6 +32,7 @@ class TabsHandler extends PageHandler{
 	function addNewTab($key,$name,$op)
 	{
 		$this->tabs[$key] = Array(
+			'class' => '',
 			'text' => $name,
 			'href' => $this->t_title->getLocalURL("action=discussion&op=".$op),
 		);

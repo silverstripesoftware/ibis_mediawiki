@@ -4,9 +4,11 @@ require_once("PageHandler.php");
 include_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 class DisplayHandler extends PageHandler{
-	function __construct($title){
+	function __construct($title,$user){
+		$this->title = $title;
 		$article = new Article($title);
 		$this->content = $article->getContent();
+		$this->user = $user;
 	}
 	function setArticleFactory(){
 		$this->factory = new ArticleFactory();
@@ -21,9 +23,17 @@ class DisplayHandler extends PageHandler{
 			return False;
 		}
 	}
+	function getEditDiscussionLink(){
+		if (($this->ibis['user'] == $this->user->id) or $this->user->isAdminUser){
+			return $this->title->getLocalURL("action=discussion&op=edit");
+		}
+		return False;
+	}
 	function getPageHTML($path){
 		$container ='<div class="ibis_conversation">%s</div>';
-		$template_main = '<h1 class="type_%s">%s</h1>';
+		$main_container = '<div class="ibis_main type_%s">%s</div>';
+		$template_title = '<span class="ibis_title">%s</span>';
+		$template_edit_link ='[<a href="%s">edit</a>]';
 		$template_parent = '<div class="ibis_parent">
 		<span class="ibis_parent_text"> 
 		Topic(s) linking here : 
@@ -33,6 +43,12 @@ class DisplayHandler extends PageHandler{
 		</span>
 		</div>';
 		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a></li>';
+		//Edit discussion link
+		$edit_link = $this->getEditDiscussionLink();
+		if($edit_link){
+			$template_title .= sprintf($template_edit_link,$edit_link);
+		}
+		$template_main = sprintf($main_container,'%s',$template_title);
 		//Parent Links
 		$links = '';
 		if(isset($this->ibis['parents'])){

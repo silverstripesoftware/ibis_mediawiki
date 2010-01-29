@@ -15,6 +15,7 @@ class DiscussionHandler extends PageHandler {
 		}
 		return False;
 	}
+	
 	function _loadRender(){
 		if($this->op=="new"){
 			$this->outTitle = "Add new discussion";

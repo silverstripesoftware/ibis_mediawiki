@@ -1576,6 +1576,13 @@ div#mw-search-interwiki-caption {
 .ibis_conversation .type_opposing_argument{
 	background:#FF9898;
 }
-.ibis_parent{
+.ibis_conversation .ibis_title{
+	font-size:25px;
+	padding-right:5px;
+}
+.ibis_conversation .ibis_parent{
 	margin-bottom:10px;
+}
+.ibis_conversation .ibis_main{
+	padding:5px;
 }

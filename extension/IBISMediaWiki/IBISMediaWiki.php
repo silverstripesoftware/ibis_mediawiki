@@ -73,11 +73,19 @@ function fnIBISTabsHandler(&$content_actions){
 		$tabs_handler->RemoveEditTab();
 		return True;
 	}
+	//Removing unwanted mediawiki tabs 
+	//Discussion/Talk
+	$tabs_handler->removeTab('talk');
+	//Move
+	$tabs_handler->removeTab('move');
+	//Watch
+	$tabs_handler->removeTab('watch');
+	
 	if($tabs_handler->isIBISNode()){
-		$display = new DisplayHandler($wgTitle);
+		$display = new DisplayHandler($wgTitle,$user);
 		if($display->isConvertionApplicableForThisPage()){
 			$tabs_handler->changeTabName('edit','Add response');
-			$tabs_handler->addEditDiscussionTabIfApplicable();
+			//$tabs_handler->addEditDiscussionTabIfApplicable();
 		}
 		else{
 			$tabs_handler->removeTab('edit');
@@ -89,11 +97,12 @@ function fnIBISTabsHandler(&$content_actions){
 }
 
 function fnIBISPageRenderer( &$out, &$text ){
-	global $wgTitle,$wgScript,$wgOut;
+	global $wgTitle,$wgScript,$wgOut,$wgUser;
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		$title = $wgTitle;
 		$path = $wgScript;
-		$display = new DisplayHandler($title);
+		$user = new UserHandler($wgUser);
+		$display = new DisplayHandler($title,$user);
 		if($display->isConvertionApplicableForThisPage()){
 			$text = $display->getPageHTML($path);
 		}
