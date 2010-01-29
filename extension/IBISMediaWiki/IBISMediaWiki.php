@@ -82,14 +82,8 @@ function fnIBISTabsHandler(&$content_actions){
 	$tabs_handler->removeTab('watch');
 	
 	if($tabs_handler->isIBISNode()){
-		$display = new DisplayHandler($wgTitle,$user);
-		if($display->isConvertionApplicableForThisPage()){
-			$tabs_handler->changeTabName('edit','Add response');
-			//$tabs_handler->addEditDiscussionTabIfApplicable();
-		}
-		else{
-			$tabs_handler->removeTab('edit');
-		}
+		//$display = new DisplayHandler($wgTitle,$user);
+		$tabs_handler->removeTab('edit');
 	}
 	$tabs_handler->addNewTab("new_discussion","New Dicussion","new");
 

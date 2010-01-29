@@ -1586,3 +1586,6 @@ div#mw-search-interwiki-caption {
 .ibis_conversation .ibis_main{
 	padding:5px;
 }
+.ibis_conversation lh{
+	font-weight:bold;
+}

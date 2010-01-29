@@ -4,7 +4,7 @@ require_once("PageHandler.php");
 include_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 class DisplayHandler extends PageHandler{
-	function __construct($title,$user){
+	function __construct($title,$user=""){
 		$this->title = $title;
 		$article = new Article($title);
 		$this->content = $article->getContent();
@@ -42,6 +42,8 @@ class DisplayHandler extends PageHandler{
 		%s
 		</span>
 		</div>';
+		$add_response_link = '<a href="'.$this->title->getEditURL().'" >add</a>';
+		$response_container = '<ul><lh>Responses : </lh>['.$add_response_link.']%s</ul>';
 		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a></li>';
 		//Edit discussion link
 		$edit_link = $this->getEditDiscussionLink();
@@ -76,11 +78,13 @@ class DisplayHandler extends PageHandler{
 				$title = $ibis['title'];
 				$responses .= sprintf($template_response,$type,$node,$title);
 			}
-			if($responses){
-				$main = sprintf("%s\n<ul>%s</ul>",$main,$responses);
-			}
 		}
-		$content = $parents.$main;
+		if(!$responses){
+			//$main = sprintf("%s\n<ul><lh>Responses : </lh>%s</ul>",$main,$responses);
+			$responses = "<br />No responses added, ".$add_response_link." one now";
+		}
+		$responses_html = sprintf($response_container,$responses);
+		$content = $parents.$main.$responses_html;
 		$html = sprintf($container,$content);
 		return $html;
 	}
