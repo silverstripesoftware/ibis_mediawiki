@@ -11,6 +11,7 @@ class FormHandler extends PageHandler{
 		else{
 			$this->ibis = YAMLHandler::YAMLToArray($ibis);
 		}
+		FB::log(print_r($this->ibis,True));
 	}
 	function fnEscapeQuotes($data){
 		return preg_replace("/\"/","&quot;",$data);
@@ -108,7 +109,7 @@ class FormHandler extends PageHandler{
 			}
 		}
 		// Adding a new response form at the end of prefilled responses(if applicable)	
-		$responses_html .= $this->get_field_html();		
+		$responses_html .= $this->get_field_html();
 		
 		return sprintf($form,$responses_html);
 	}

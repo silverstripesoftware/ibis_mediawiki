@@ -130,7 +130,7 @@ function fnIBISEdit( &$editpage)
 		
 		if ( $wgRequest->wasPosted() ) {		
 			if($wgRequest->getCheck('save')){
-				fnIBISSaveResponses($wgRequest,$editpage->mTitle->getText(),$user);
+				fnIBISSaveResponses($wgRequest,$editpage->mTitle,$user);
 				$wgOut->redirect($editpage->mTitle->getFullUrl());
 			}
 			if($wgRequest->getCheck('cancel')){
@@ -147,14 +147,15 @@ function fnIBISEdit( &$editpage)
 		return True;
 	}
 }
-function fnIBISSaveResponses($request,$page_title,$user){
+function fnIBISSaveResponses($request,$titleObj,$user){
 	$types = $request->data['type'];
 	$titles = $request->data['ibis_title'];
 	$nodes = $request->data['node'];
 	$users = $request->data['user'];
 	
-	$page_handler = new PageHandler($page_title,$user);
+	$page_handler = new PageHandler($titleObj,$user);
 	$page_handler->LoadCurrentPage();
+	#$page_handler->initDB();
 	for($i=0;$i<count($titles);$i++){
 		$title = $titles[$i];
 		$type = $types[$i];
@@ -166,7 +167,11 @@ function fnIBISSaveResponses($request,$page_title,$user){
 			$response = fnIBISSaveResponse($type,$title,$node,$user,$page_handler);
 			$page_handler->ibis['responses'][] = $response;
 		}
-		
+		else{
+			if($node!=''){
+				$page_handler->removeParent($node);
+			}
+		}
 	}	
 	$page_handler->SavePage();
 	return;

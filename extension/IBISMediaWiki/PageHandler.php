@@ -1,16 +1,20 @@
 <?php
 require_once("YAMLHandler.php");
+require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 function fnIBISSaveResponse($type,$title,$node,$user,$page_handler){
 	if($node==''){
 		$page['title'] = $title;
 		$page['type'] = $type;
+		$page['user'] = $user;
+		$page['parents'][]=$page_handler->title->getDBkey();
 		$response['node'] = $page_handler->AddPage($page);
 	}
 	else{
-		$response = $page_handler->GetContent($node,True);
+		$page = $page_handler->GetContent($node,True);
 		$page['title'] = $title;
 		$page['type'] = $type;
+		$page['user'] = $user;
 		$page_handler->EditContent($node,$page);
 		$response['node'] = $node;
 	}
@@ -19,19 +23,20 @@ function fnIBISSaveResponse($type,$title,$node,$user,$page_handler){
 }
 
 class ArticleFactory {
-	function getArticle($node) {
-		$title = Title::newFromText($node);
+	function getArticle($title) {
+		if(gettype($title)=='string'){
+			$title = Title::newFromText($title);
+		}
 		return new Article($title);
 	}
 }
 
 class PageHandler {
-	function __construct($current_page_title, $user){
+	function __construct($titleObj, $user){
 		$this->factory = new ArticleFactory();
 		$this->user = $user;
-		$this->title = $current_page_title;
+		$this->title = $titleObj;
 	}
-	
 	function _removeCurrentUserResponses(){
 		$filtered_ibis = array();
 		if(isset($this->ibis['responses'])){
@@ -83,7 +88,7 @@ class PageHandler {
 	}
 	
 	function GetNextPageTitle(){	
-		$dbr = &wfGetDB( DB_SLAVE );
+		$dbr = &wfGetDB( DB_MASTER );
 		$q = "select max(page_id) as max_page_id from page";
 		$res = $dbr->query($q);
 		$row = $dbr->fetchObject($res);
@@ -101,5 +106,28 @@ class PageHandler {
 	function SavePage(){
 		$this->EditContent($this->title,$this->ibis);
 	}	
+	
+	function removeParent($node){
+		//Function that removes the specified values from given array
+		function array_remove_value() {
+			$args = func_get_args();
+			$arr = $args[0];
+			$values = array_slice($args,1);
+			foreach($arr as $k=>$v) {
+				if(in_array($v, $values))
+					unset($arr[$k]);
+			}
+			return $arr;
+		}		
+		$parent = $this->title->getDBkey();
+		$ibis = $this->GetContent($node,True);
+		if(isset($ibis['parents'])){
+			$ibis['parents'] = array_remove_value($ibis['parents'],$parent);
+			if (!count($ibis['parents'])){
+				unset($ibis['parents']);
+			}
+			$this->EditContent($node,$ibis);
+		}
+	}
 }
 ?>
