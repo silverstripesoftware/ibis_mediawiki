@@ -1,7 +1,6 @@
 <?php
 require_once("YAMLHandler.php");
 require_once("PageHandler.php");
-require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 class FormHandler extends PageHandler{
 	function __construct($user,$ibis){
 		$this->user = $user;
@@ -11,7 +10,6 @@ class FormHandler extends PageHandler{
 		else{
 			$this->ibis = YAMLHandler::YAMLToArray($ibis);
 		}
-		FB::log(print_r($this->ibis,True));
 	}
 	function fnEscapeQuotes($data){
 		return preg_replace("/\"/","&quot;",$data);

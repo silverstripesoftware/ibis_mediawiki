@@ -1,7 +1,6 @@
 <?php
 require_once("YAMLHandler.php");
 require_once("PageHandler.php");
-include_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 class DisplayHandler extends PageHandler{
 	function __construct($title,$user=""){
