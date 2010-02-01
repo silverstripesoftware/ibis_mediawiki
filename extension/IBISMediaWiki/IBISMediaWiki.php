@@ -34,7 +34,7 @@ function fnIBISMediaWiki()
 	$wgHooks['SkinTemplateContentActions'][] = 'fnIBISTabsHandler';
 	$wgHooks['AlternateEdit'][] = 'fnIBISEdit';
 	$wgHooks['OutputPageBeforeHTML'][] = 'fnIBISPageRenderer';
-	$wgHooks['UnknownAction'][] = 'fnIBISDiscussionHandler';
+	$wgHooks['UnknownAction'][] = 'fnIBISActionHandler';
 }
 
 function fnAddCustomBlock($skin, $tpl){
@@ -55,12 +55,12 @@ function fnAddCustomBlock($skin, $tpl){
 	return true;
 }
 
-function fnIBISDiscussionHandler($action, $article){
+function fnIBISActionHandler($action, $article){
 	global $wgOut,$wgRequest,$wgUser;
 	$current_title = $article->getTitle();
 	$user = new UserHandler($wgUser);
+	$op = isset($wgRequest->data['op'])?$wgRequest->data['op']:'';
 	if($action=="discussion"){
-		$op = $wgRequest->data['op'];
 		$discussionHandler = new DiscussionHandler($current_title,$user,$op);
 		if($wgRequest->wasPosted()){
 			if($wgRequest->getCheck('save')){
@@ -80,6 +80,21 @@ function fnIBISDiscussionHandler($action, $article){
 			$wgOut->addHTML($discussionHandler->outHTML);
 		}
 		return false;
+	}
+	elseif($action=="response"&&$op=="remove"){
+		$response_node = $wgRequest->data['response'];
+		$page = new PageHandler($current_title,$user);
+		$page->LoadCurrentPage(False);
+		if(isset($page->ibis['responses'])){
+			foreach($page->ibis['responses'] as $key=>$response){
+				if($response['node']==$response_node && $response['user']==$user->id){
+					unset($page->ibis['responses'][$key]);
+					$page->SavePage();
+					$wgOut->redirect($current_title->getFullURL());
+					return False;
+				}
+			}
+		}
 	}
 	return True;
 }

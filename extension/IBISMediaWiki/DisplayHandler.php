@@ -44,8 +44,9 @@ class DisplayHandler extends PageHandler{
 		</div>';
 		$add_response_link = ' <a href="'.$this->title->getEditURL().'" >add</a> ';
 		$response_container = '<ul><lh>Responses : </lh>['.$add_response_link.']%s</ul>';
-		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a> %s </li>';
-		$remove_link_template = '[ <a href="#">remove</a> ]';
+		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a> %s %s </li>';
+		$remove_link_template = '[ <a href="'.$this->title->getLocalURL("action=response&op=remove&response=%s").'">remove</a> ]';
+		$edit_response_link = '[ <a href="'.$path.'?title=%s&action=discussion&op=edit">edit</a> ]';
 		//Edit discussion link
 		$edit_link = $this->getEditDiscussionLink();
 		if($edit_link){
@@ -78,12 +79,13 @@ class DisplayHandler extends PageHandler{
 				$type = $ibis['type'];
 				$title = $ibis['title'];
 				if($ibis['user']==$this->user->id){
-					$remove = $remove_link_template;
+					$remove = sprintf($remove_link_template,$node);
+					$edit = sprintf($edit_response_link,$node);
 				}
 				else{
-					$remove = "";
+					$remove = $edit = "";
 				}
-				$responses .= sprintf($template_response,$type,$node,$title,$remove);
+				$responses .= sprintf($template_response,$type,$node,$title,$edit,$remove);
 			}
 		}
 		if(!$responses){
