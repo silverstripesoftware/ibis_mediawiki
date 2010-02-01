@@ -30,8 +30,8 @@ class DisplayHandler extends PageHandler{
 	}
 	function getPageHTML($path){
 		$container ='<div class="ibis_conversation">%s</div>';
-		$main_container = '<h2>Statement</h2><div class="ibis_main type_%s">%s</div>';
-		$template_title = '<span class="ibis_title">%s</span>';
+		$main_header = '<h2>Statement <span class="editsection">%s</span> </h2>';
+		$template_main = '<div class="ibis_title type_%s">%s</div><p>%s</p>';
 		$template_edit_link ='[<a href="%s">edit</a>]';
 		$template_parent = '<div class="ibis_parent">
 		<strong>Topic(s) linking here</strong>
@@ -40,19 +40,18 @@ class DisplayHandler extends PageHandler{
 		</span>
 		</div>';
 		$add_response_link = '<a href="'.$this->title->getEditURL().'" >Add a response</a>';
-		$response_container = '<h2>Responses</h2>['.$add_response_link.']<ul>%s</ul>';
+		$response_container = '<h2>Responses <span class="editsection">['.$add_response_link.']</span></h2><ul>%s</ul>';
 		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a> %s %s </li>';
 		$remove_link_template = '[ <a href="'.$this->title->getLocalURL("action=response&op=remove&response=%s").'">remove</a> ]';
 		$edit_response_link = '[ <a href="'.$path.'?title=%s&action=discussion&op=edit">edit</a> ]';
 		//Edit discussion link
 		$edit_link = $this->getEditDiscussionLink();
 		if($edit_link){
-			$template_title .= sprintf($template_edit_link,$edit_link);
+			$main_header = sprintf($main_header,sprintf($template_edit_link,$edit_link));
 		}
-		$template_main = sprintf($main_container,'%s',$template_title);
 		//Parent Links
 		$links = '';
-		if(isset($this->ibis['parents'])){
+		if(isset($this->ibis['parents']) && !empty($this->ibis['parents'])){
 			$link = '<a href="'.$path.'/%s">%s</a>';
 			$this->setArticleFactory();
 			foreach($this->ibis['parents'] as $parent){
@@ -65,7 +64,8 @@ class DisplayHandler extends PageHandler{
 		}
 		$parents = sprintf($template_parent,$links);
 		//Main HTML
-		$main = sprintf($template_main,$this->ibis['type'],$this->ibis['title']);
+		$desc = isset($this->ibis['desc'])?$this->ibis['desc']:'';
+		$main = sprintf($template_main,$this->ibis['type'],$this->ibis['title'],$desc);
 		//Response HTML
 		$responses = '';
 		if(isset($this->ibis['responses'])){
@@ -75,7 +75,7 @@ class DisplayHandler extends PageHandler{
 				$ibis = $this->GetContent($node,True);
 				$type = $ibis['type'];
 				$title = $ibis['title'];
-				if($ibis['user']==$this->user->id){
+				if($ibis['user']==$this->user->id or $this->user->isAdminUser){
 					$remove = sprintf($remove_link_template,$node);
 					$edit = sprintf($edit_response_link,$node);
 				}
@@ -87,10 +87,10 @@ class DisplayHandler extends PageHandler{
 		}
 		if(!$responses){
 			//$main = sprintf("%s\n<ul><lh>Responses : </lh>%s</ul>",$main,$responses);
-			$responses = "<br />No responses added, ".$add_response_link." one now";
+			$responses = "<br />No responses. ".$add_response_link;
 		}
 		$responses_html = sprintf($response_container,$responses);
-		$content = $parents.$main.$responses_html;
+		$content = $parents.$main_header.$main.$responses_html;
 		$html = sprintf($container,$content);
 		return $html;
 	}

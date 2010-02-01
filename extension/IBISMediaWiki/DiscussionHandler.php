@@ -23,12 +23,17 @@ class DiscussionHandler extends PageHandler {
 		}
 		elseif($this->op=="edit"){
 			$page = new PageHandler($this->title->getText(),$this->user);
-			$page->LoadCurrentPage(False);
+			$page->LoadCurrentPage();
 			if($this->canUserEdit($page->ibis['user'])){
 				$this->outTitle = "Edit discussion : ".$this->title->getText();
 				$this->ibis = $page->ibis;
 				if(isset($page->ibis['responses'])){
-					$_SESSION[$this->title->getDBkey()] = serialize($page->ibis['responses']);
+					$key = $this->title->getDBkey()."_responses";
+					$_SESSION[$key] = serialize($page->ibis['responses']);
+				}
+				if(isset($page->ibis['parents'])){
+					$key = $this->title->getDBkey()."_parents";
+					$_SESSION[$key] =  serialize($page->ibis['parents']);
 				}
 				return True;
 			}
@@ -47,15 +52,22 @@ class DiscussionHandler extends PageHandler {
 			$this->outHTML = $html;
 		}
 	}
-	function _loadSave($title,$type,$user){
+	function _loadSave($title,$type,$desc,$user){
 		$this->ibis = array();
-		if(isset($_SESSION[$this->title->getDBkey()])){
-			$this->ibis['responses'] = unserialize($_SESSION[$this->title->getDBkey()]);
-			unset($_SESSION[$this->title->getDBkey()]);
+		$response_key = $this->title->getDBkey()."_responses";
+		if(isset($_SESSION[$response_key])){
+			$this->ibis['responses'] = unserialize($_SESSION[$response_key]);
+			unset($_SESSION[$response_key]);
+		}
+		$parent_key = $this->title->getDBkey()."_parents";
+		if(isset($_SESSION[$parent_key])){
+			$this->ibis['parents'] = unserialize($_SESSION[$parent_key]);
+			unset($_SESSION[$parent_key]);
 		}
 		$this->ibis['title'] = $title;
 		$this->ibis['type'] = $type;
 		$this->ibis['user'] = $user;
+		$this->ibis['desc'] = $desc;
 		
 	}
 	function AddDiscussion(){
@@ -69,8 +81,8 @@ class DiscussionHandler extends PageHandler {
 	function ModifyDiscussion(){
 		$this->_save($this->title->getText());
 	}
-	function SaveDiscussionForm($title,$type,$user){
-		$this->_loadSave($title,$type,$user);
+	function SaveDiscussionForm($title,$type,$desc,$user){
+		$this->_loadSave($title,$type,$desc,$user);
 		if($this->op=="new"){
 			$title = $this->AddDiscussion();
 			$titleObj = Title::newFromText($title);

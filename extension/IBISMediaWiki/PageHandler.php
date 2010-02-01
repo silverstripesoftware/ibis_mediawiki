@@ -1,22 +1,14 @@
 <?php
 require_once("YAMLHandler.php");
 
-function fnIBISSaveResponse($type,$title,$node,$user,$page_handler){
-	if($node==''){
-		$page['title'] = $title;
-		$page['type'] = $type;
-		$page['user'] = $user;
-		$page['parents'][]=$page_handler->title->getDBkey();
-		$response['node'] = $page_handler->AddPage($page);
-	}
-	else{
-		$page = $page_handler->GetContent($node,True);
-		$page['title'] = $title;
-		$page['type'] = $type;
-		$page['user'] = $user;
-		$page_handler->EditContent($node,$page);
-		$response['node'] = $node;
-	}
+function fnIBISSaveResponse($type,$title,$user,$desc,$page_handler){
+	$response = $page = array();
+	$page['title'] = $title;
+	$page['type'] = $type;
+	$page['user'] = $user;
+	$page['desc'] = $desc;
+	$page['parents'][]=$page_handler->title->getDBkey();
+	$response['node'] = $page_handler->AddPage($page);
 	$response['user'] = $user;
 	return $response;
 }
@@ -36,35 +28,15 @@ class PageHandler {
 		$this->user = $user;
 		$this->title = $titleObj;
 	}
-	function _removeCurrentUserResponses(){
-		$filtered_ibis = array();
-		if(isset($this->ibis['responses'])){
-			if($this->user->isAdminUser){
-				unset($this->ibis['responses']);
-			}
-			else{
-				foreach($this->ibis['responses'] as $response){
-					if($response['user']!=$this->user->id){
-						$filtered_ibis[] = $response;
-					}
-				}
-				$this->ibis['responses'] = $filtered_ibis;
-			}
-		}
-	}
 	
 	function _getObject($page_title){
 		return $this->factory->getArticle($page_title);
 	}
 	
-	function LoadCurrentPage($removeResponse=True) {
+	function LoadCurrentPage(){
 		$this->ibis = $this->GetContent($this->title, True);
 		if(!(isset($this->ibis['user']))){
 			$this->ibis['user']='1';
-		}
-		// Removing the existing responses of current user
-		if($removeResponse){
-			$this->_removeCurrentUserResponses();
 		}
 	}
 	

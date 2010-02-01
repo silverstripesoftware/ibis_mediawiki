@@ -37,7 +37,11 @@ function fnIBISMediaWiki()
 }
 
 function fnAddCustomBlock($skin, $tpl){
-	global $wgScript;
+	global $wgScript,$wgUser;
+	$user = new UserHandler($wgUser);
+	if($user->isGuest){	
+		return True;
+	}
 	$sidebar = $tpl->data['sidebar'];
 	$custom_sidebar = array();
 	//Adding a new block on top
@@ -66,7 +70,8 @@ function fnIBISActionHandler($action, $article){
 				$title = $wgRequest->data['ibis_title'];
 				$type = $wgRequest->data['type'];
 				$user = $wgRequest->data['user'];
-				$url = $discussionHandler->SaveDiscussionForm($title,$type,$user);
+				$desc = $wgRequest->data['desc'];
+				$url = $discussionHandler->SaveDiscussionForm($title,$type,$desc,$user);
 				$wgOut->redirect($url);
 			}
 			if($wgRequest->getCheck('cancel')){
@@ -83,12 +88,13 @@ function fnIBISActionHandler($action, $article){
 	elseif($action=="response"&&$op=="remove"){
 		$response_node = $wgRequest->data['response'];
 		$page = new PageHandler($current_title,$user);
-		$page->LoadCurrentPage(False);
+		$page->LoadCurrentPage();
 		if(isset($page->ibis['responses'])){
 			foreach($page->ibis['responses'] as $key=>$response){
 				if($response['node']==$response_node && $response['user']==$user->id){
 					unset($page->ibis['responses'][$key]);
 					$page->SavePage();
+					$page->removeParent($response_node);
 					$wgOut->redirect($current_title->getFullURL());
 					return False;
 				}
@@ -98,11 +104,12 @@ function fnIBISActionHandler($action, $article){
 	return True;
 }
 function fnIBISTabsHandler(&$content_actions){
-	global $wgTitle,$wgUser;
+	global $wgUser;
 	$user = new UserHandler($wgUser);
-	$tabs_handler = new TabsHandler($content_actions,$user,$wgTitle);
+	$tabs_handler = new TabsHandler($content_actions);
+	
+	$tabs_handler->RemoveEditTab();
 	if($user->isGuest){	
-		$tabs_handler->RemoveEditTab();
 		return True;
 	}
 	//Removing unwanted mediawiki tabs 
@@ -111,13 +118,7 @@ function fnIBISTabsHandler(&$content_actions){
 	//Move
 	$tabs_handler->removeTab('move');
 	//Watch
-	$tabs_handler->removeTab('watch');
-	
-	if($tabs_handler->isIBISNode()){
-		//$display = new DisplayHandler($wgTitle,$user);
-		$tabs_handler->removeTab('edit');
-	}
-	//$tabs_handler->addNewTab("new_discussion","New Dicussion","new");
+	$tabs_handler->removeTab('watch');	
 
 	return True;
 }
@@ -147,34 +148,23 @@ function fnIBISEdit( &$editpage)
 		$display = new DisplayHandler($wgTitle);
 		if(!$display->isConvertionApplicableForThisPage()){
 			$wgOut->setPageTitle('Error');
-			$wgOut->addHTML('<strong style="color:red">Sorry, You cannot add discussions this way. Use "New discussion" tab </strong>');
+			$wgOut->addHTML('<strong style="color:red">Sorry, You cannot add discussions this way. Use "New discussion" to add </strong>');
 			return False;
 		}
 		//IBIS User Handler for current user
 		$user = new UserHandler($wgUser);
-		
-		$type_map = array(
-			'issue' => 'Issue',
-			'position' => 'Position',
-			'supporting_argument' => 'Supporting Argument',
-			'opposing_argument' => 'Opposing Argument',
-		);
-		$wgOut->setPageTitle('Add/Edit responses to IBIS Node : '.$editpage->mTitle->getText());
-		
 		$content = $editpage->mArticle->getContent();		
 		
 		if ( $wgRequest->wasPosted() ) {		
 			if($wgRequest->getCheck('save')){
-				fnIBISSaveResponses($wgRequest,$editpage->mTitle,$user);
-				$wgOut->redirect($editpage->mTitle->getFullUrl());
+				fnIBISAddResponse($wgRequest,$editpage->mTitle,$user);
 			}
-			if($wgRequest->getCheck('cancel')){
-				$wgOut->redirect($editpage->mTitle->getFullUrl());
-			}
+			$wgOut->redirect($editpage->mTitle->getFullUrl());
 		}
 		// Render Edit form
 		$form_handler = new FormHandler($user,$content);
-		$wgOut->addHTML	($form_handler->get_edit_form());
+		$wgOut->setPageTitle('Add a response to the discussion : '.$form_handler->ibis['title']);
+		$wgOut->addHTML	($form_handler->get_response_form());
 		
 		return false;
 	}
@@ -182,33 +172,18 @@ function fnIBISEdit( &$editpage)
 		return True;
 	}
 }
-function fnIBISSaveResponses($request,$titleObj,$user){
-	$types = $request->data['type'];
-	$titles = $request->data['ibis_title'];
-	$nodes = $request->data['node'];
-	$users = $request->data['user'];
-	
+function fnIBISAddResponse($request,$titleObj,$user){
+	$type = $request->data['type'];
+	$title = $request->data['ibis_title'];
+	$user = $request->data['user'];
+	$desc = $request->data['desc'];
 	$page_handler = new PageHandler($titleObj,$user);
 	$page_handler->LoadCurrentPage();
-	#$page_handler->initDB();
-	for($i=0;$i<count($titles);$i++){
-		$title = $titles[$i];
-		$type = $types[$i];
-		$node = $nodes[$i];
-		$user = $users[$i];
-		
-		//Add the response only if its title is not empty
-		if($title!=''){
-			$response = fnIBISSaveResponse($type,$title,$node,$user,$page_handler);
-			$page_handler->ibis['responses'][] = $response;
-		}
-		else{
-			if($node!=''){
-				$page_handler->removeParent($node);
-			}
-		}
-	}	
-	$page_handler->SavePage();
+	if($title!=''){
+		$response = fnIBISSaveResponse($type,$title,$user,$desc,$page_handler);
+		$page_handler->ibis['responses'][] = $response;
+		$page_handler->SavePage();
+	}
 	return;
 }
 ?>
