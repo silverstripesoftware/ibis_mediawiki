@@ -1,6 +1,5 @@
 <?php
 require_once("PageHandler.php");
-require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 class DiscussionHandler extends PageHandler {
 	function __construct($title,$user,$op){

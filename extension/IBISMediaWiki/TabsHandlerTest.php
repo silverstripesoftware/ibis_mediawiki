@@ -2,7 +2,6 @@
 require_once 'PHPUnit/Framework.php';
 require_once("TabsHandler.php");
 require_once("DummyClasses.php");
-require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 class TabsHandlerTest extends PHPUnit_Framework_TestCase {
 	function get_tabs(){
 		$tabs = array(

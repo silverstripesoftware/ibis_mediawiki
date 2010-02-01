@@ -1,6 +1,5 @@
 <?php
 require_once("YAMLHandler.php");
-require_once('C:/wamp/bin/php/php5.3.0/PEAR/FirePHPCore/fb.php');
 
 function fnIBISSaveResponse($type,$title,$node,$user,$page_handler){
 	if($node==''){
