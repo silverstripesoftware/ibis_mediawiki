@@ -30,19 +30,17 @@ class DisplayHandler extends PageHandler{
 	}
 	function getPageHTML($path){
 		$container ='<div class="ibis_conversation">%s</div>';
-		$main_container = '<div class="ibis_main type_%s">%s</div>';
+		$main_container = '<h2>Statement</h2><div class="ibis_main type_%s">%s</div>';
 		$template_title = '<span class="ibis_title">%s</span>';
 		$template_edit_link ='[<a href="%s">edit</a>]';
 		$template_parent = '<div class="ibis_parent">
-		<span class="ibis_parent_text"> 
-		Topic(s) linking here : 
-		</span>
+		<strong>Topic(s) linking here</strong>
 		<span class="ibis_parent_links">
 		%s
 		</span>
 		</div>';
-		$add_response_link = ' <a href="'.$this->title->getEditURL().'" >add</a> ';
-		$response_container = '<ul><lh>Responses : </lh>['.$add_response_link.']%s</ul>';
+		$add_response_link = '<a href="'.$this->title->getEditURL().'" >Add a response</a>';
+		$response_container = '<h2>Responses</h2>['.$add_response_link.']<ul>%s</ul>';
 		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a> %s %s </li>';
 		$remove_link_template = '[ <a href="'.$this->title->getLocalURL("action=response&op=remove&response=%s").'">remove</a> ]';
 		$edit_response_link = '[ <a href="'.$path.'?title=%s&action=discussion&op=edit">edit</a> ]';
@@ -63,7 +61,7 @@ class DisplayHandler extends PageHandler{
 			}
 		}
 		if(!$links){
-			$links = "None of the topics linking here.";
+			$links = "No topics";
 		}
 		$parents = sprintf($template_parent,$links);
 		//Main HTML
