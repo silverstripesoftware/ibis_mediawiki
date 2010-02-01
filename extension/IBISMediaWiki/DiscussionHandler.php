@@ -75,7 +75,7 @@ class DiscussionHandler extends PageHandler {
 		if($this->op=="new"){
 			$title = $this->AddDiscussion();
 			$titleObj = Title::newFromText($title);
-			return $titleObj->getFullURL;
+			return $titleObj->getFullURL();
 		}
 		elseif($this->op=="edit"){
 			$this->ModifyDiscussion();

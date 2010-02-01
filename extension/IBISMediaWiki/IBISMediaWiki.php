@@ -30,12 +30,30 @@ $wgExtensionCredits['other'][] = array(
 function fnIBISMediaWiki()
 {
 	global $wgHooks;
+	$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'fnAddCustomBlock';
 	$wgHooks['SkinTemplateContentActions'][] = 'fnIBISTabsHandler';
 	$wgHooks['AlternateEdit'][] = 'fnIBISEdit';
 	$wgHooks['OutputPageBeforeHTML'][] = 'fnIBISPageRenderer';
 	$wgHooks['UnknownAction'][] = 'fnIBISDiscussionHandler';
 }
 
+function fnAddCustomBlock($skin, $tpl){
+	global $wgScript;
+	$sidebar = $tpl->data['sidebar'];
+	$custom_sidebar = array();
+	//Adding a new block on top
+	$custom_sidebar['IBIS ACTIONS'][]	= array(
+		'text' => 'New Discussion',
+		'href' => $wgScript.'?action=discussion&op=new',
+		'id' => 'n-ibis-actions',
+		'active' => '',
+	);
+	foreach($sidebar as $key=>$val){
+		$custom_sidebar[$key] = $val;
+	}
+	$tpl->set( 'sidebar', $custom_sidebar );
+	return true;
+}
 
 function fnIBISDiscussionHandler($action, $article){
 	global $wgOut,$wgRequest,$wgUser;
@@ -85,7 +103,7 @@ function fnIBISTabsHandler(&$content_actions){
 		//$display = new DisplayHandler($wgTitle,$user);
 		$tabs_handler->removeTab('edit');
 	}
-	$tabs_handler->addNewTab("new_discussion","New Dicussion","new");
+	//$tabs_handler->addNewTab("new_discussion","New Dicussion","new");
 
 	return True;
 }

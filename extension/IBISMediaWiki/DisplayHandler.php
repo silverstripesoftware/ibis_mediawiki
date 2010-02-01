@@ -42,9 +42,10 @@ class DisplayHandler extends PageHandler{
 		%s
 		</span>
 		</div>';
-		$add_response_link = '<a href="'.$this->title->getEditURL().'" >add</a>';
+		$add_response_link = ' <a href="'.$this->title->getEditURL().'" >add</a> ';
 		$response_container = '<ul><lh>Responses : </lh>['.$add_response_link.']%s</ul>';
-		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a></li>';
+		$template_response = '<li class="type_%s"><a href="'.$path.'/%s">%s</a> %s </li>';
+		$remove_link_template = '[ <a href="#">remove</a> ]';
 		//Edit discussion link
 		$edit_link = $this->getEditDiscussionLink();
 		if($edit_link){
@@ -76,7 +77,13 @@ class DisplayHandler extends PageHandler{
 				$ibis = $this->GetContent($node,True);
 				$type = $ibis['type'];
 				$title = $ibis['title'];
-				$responses .= sprintf($template_response,$type,$node,$title);
+				if($ibis['user']==$this->user->id){
+					$remove = $remove_link_template;
+				}
+				else{
+					$remove = "";
+				}
+				$responses .= sprintf($template_response,$type,$node,$title,$remove);
 			}
 		}
 		if(!$responses){
