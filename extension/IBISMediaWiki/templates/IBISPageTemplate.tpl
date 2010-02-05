@@ -25,9 +25,11 @@
 		{$desc}
 	</p>
 	<h2>Responses 
+		{if $isGuestUser ne True}
 		<span class="editsection">
 			[<a href="{$add_response_link}" >Add a response</a>]
 		</span>
+		{/if}
 	</h2>
 	<ul>
 		{if $responses}

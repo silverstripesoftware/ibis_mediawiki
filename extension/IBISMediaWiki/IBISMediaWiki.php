@@ -36,6 +36,11 @@ function fnIBISMediaWiki()
 	$wgHooks['UnknownAction'][] = 'fnIBISActionHandler';
 }
 
+function fnSetErrorPage($out){
+	$out->setPageTitle('Error');
+	$out->addHTML('<strong style="color:red">Sorry, You dont have permission to perform this action </strong>');
+}
+
 function fnAddCustomBlock($skin, $tpl){
 	global $wgScript,$wgUser;
 	$user = new UserHandler($wgUser);
@@ -63,6 +68,10 @@ function fnIBISActionHandler($action, $article){
 	$current_title = $article->getTitle();
 	$user = new UserHandler($wgUser);
 	$op = isset($wgRequest->data['op'])?$wgRequest->data['op']:'';
+	if($user->isGuest){
+		fnSetErrorPage($wgOut);
+		return False;
+	}
 	if($action=="discussion"){
 		$discussionHandler = new DiscussionHandler($current_title,$user,$op);
 		if($wgRequest->wasPosted()){
@@ -91,7 +100,7 @@ function fnIBISActionHandler($action, $article){
 		$page->LoadCurrentPage();
 		if(isset($page->ibis['responses'])){
 			foreach($page->ibis['responses'] as $key=>$response){
-				if($response['node']==$response_node && $response['user']==$user->id){
+				if($response['node']==$response_node && ($response['user']==$user->id || $user->isAdminUser)){
 					unset($page->ibis['responses'][$key]);
 					$page->SavePage();
 					$page->removeParent($response_node);
@@ -109,12 +118,15 @@ function fnIBISTabsHandler(&$content_actions){
 	$tabs_handler = new TabsHandler($content_actions);
 	
 	$tabs_handler->RemoveEditTab();
-	if($user->isGuest){	
-		return True;
-	}
 	//Removing unwanted mediawiki tabs 
 	//Discussion/Talk
 	$tabs_handler->removeTab('talk');
+	
+	//Non-Registered user will not have other two tabs
+	if($user->isGuest){	
+		return True;
+	}
+
 	//Move
 	$tabs_handler->removeTab('move');
 	//Watch
@@ -145,14 +157,19 @@ function fnIBISEdit( &$editpage)
 {	
 	global $wgOut,$wgRequest,$wgTitle,$wgUser;
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+		//IBIS User Handler for current user
+		$user = new UserHandler($wgUser);
+		if($user->isGuest){
+			fnSetErrorPage($wgOut);
+			return False;
+		}
 		$display = new DisplayHandler($wgTitle);
 		if(!$display->isConvertionApplicableForThisPage()){
 			$wgOut->setPageTitle('Error');
 			$wgOut->addHTML('<strong style="color:red">Sorry, You cannot add discussions this way. Use "New discussion" to add </strong>');
 			return False;
 		}
-		//IBIS User Handler for current user
-		$user = new UserHandler($wgUser);
+		
 		$content = $editpage->mArticle->getContent();		
 		
 		if ( $wgRequest->wasPosted() ) {		

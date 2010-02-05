@@ -59,6 +59,9 @@ class DisplayHandler extends PageHandler{
 			}
 		}
 		$smarty->assign('parents', $parents);
+		
+		$smarty->assign('isGuestUser', $this->user->isGuest);
+		
 		$responses = array();
 		if(isset($this->ibis['responses'])){
 			foreach($this->ibis['responses'] as $response){
@@ -67,8 +70,10 @@ class DisplayHandler extends PageHandler{
 				$ibis = $this->GetContent($node,True);
 				$type = $ibis['type'];
 				$title = $ibis['title'];
-				if($ibis['user']==$this->user->id or $this->user->isAdminUser){
-					$owner = True;
+				if(!$this->user->isGuest){
+					if(($ibis['user'] == $this->user->id) || $this->user->isAdminUser){
+						$owner = True;
+					}
 				}
 				$responses[]= array(
 				'type'=>$type,
