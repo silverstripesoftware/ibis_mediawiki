@@ -113,25 +113,25 @@ function fnIBISActionHandler($action, $article){
 	return True;
 }
 function fnIBISTabsHandler(&$content_actions){
-	global $wgUser;
+	global $wgUser,$wgTitle;
 	$user = new UserHandler($wgUser);
 	$tabs_handler = new TabsHandler($content_actions);
-	
-	$tabs_handler->RemoveEditTab();
-	//Removing unwanted mediawiki tabs 
-	//Discussion/Talk
-	$tabs_handler->removeTab('talk');
-	
-	//Non-Registered user will not have other two tabs
-	if($user->isGuest){	
-		return True;
+	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+		$tabs_handler->RemoveEditTab();
+		//Removing unwanted mediawiki tabs 
+		//Discussion/Talk
+		$tabs_handler->removeTab('talk');
+		
+		//Non-Registered user will not have other two tabs
+		if($user->isGuest){	
+			return True;
+		}
+
+		//Move
+		$tabs_handler->removeTab('move');
+		//Watch
+		$tabs_handler->removeTab('watch');	
 	}
-
-	//Move
-	$tabs_handler->removeTab('move');
-	//Watch
-	$tabs_handler->removeTab('watch');	
-
 	return True;
 }
 
