@@ -31,19 +31,17 @@
 		</span>
 		{/if}
 	</h2>
-	<ul>
-		{if $responses}
-			{section name=mysec loop=$responses}
-			<li class="type_{$responses[mysec].type}">
-				<a href="{$base_path}/{$responses[mysec].node}">{$responses[mysec].text}</a> 
-				{if $responses[mysec].owner}
-				[ <a href="{$base_path}?title={$responses[mysec].node}&action=discussion&op=edit">edit</a> ] 
-				[ <a href="{$base_path}?title={$title}&action=response&op=remove&response={$responses[mysec].node}">remove</a> ] 
-				{/if}
-			</li>
-			{/section}
-		{else}
-			No responses added so far.
-		{/if}
-	</ul>
+	{if $responses}
+		{section name=mysec loop=$responses}
+		<p class="type_{$responses[mysec].type}">
+			<a href="{$base_path}/{$responses[mysec].node}">{$responses[mysec].text}</a> 
+			{if $responses[mysec].owner}
+			[ <a href="{$base_path}?title={$responses[mysec].node}&action=discussion&op=edit">edit</a> ] 
+			[ <a href="{$base_path}?title={$title}&action=response&op=remove&response={$responses[mysec].node}">remove</a> ] 
+			{/if}
+		</p>
+		{/section}
+	{else}
+		No responses added so far.
+	{/if}
 </div>
