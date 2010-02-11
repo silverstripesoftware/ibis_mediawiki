@@ -25,7 +25,7 @@ class DiscussionHandler extends PageHandler {
 			$page = new PageHandler($this->title->getText(),$this->user);
 			$page->LoadCurrentPage();
 			if($this->canUserEdit($page->ibis['user'])){
-				$this->outTitle = "Edit discussion : ".$this->title->getText();
+				$this->outTitle = "Edit discussion : ".$page->ibis['title'];
 				$this->ibis = $page->ibis;
 				if(isset($page->ibis['responses'])){
 					$key = $this->title->getDBkey()."_responses";
@@ -44,10 +44,10 @@ class DiscussionHandler extends PageHandler {
 		}
 		return False;
 	}	
-	function RenderDiscussionForm(){
+	function RenderDiscussionForm($wikipath){
 		$success = $this->_loadRender();
 		if($success){
-			$form = new FormHandler($this->user,$this->ibis);
+			$form = new FormHandler($this->user,$this->ibis,$wikipath);
 			$html =  $form->get_discussion_form();
 			$this->outHTML = $html;
 		}

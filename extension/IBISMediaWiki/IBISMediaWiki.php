@@ -64,7 +64,7 @@ function fnAddCustomBlock($skin, $tpl){
 }
 
 function fnIBISActionHandler($action, $article){
-	global $wgOut,$wgRequest,$wgUser;
+	global $wgOut,$wgRequest,$wgUser,$wgScriptPath;
 	$current_title = $article->getTitle();
 	$user = new UserHandler($wgUser);
 	$op = isset($wgRequest->data['op'])?$wgRequest->data['op']:'';
@@ -88,7 +88,7 @@ function fnIBISActionHandler($action, $article){
 			}
 		}
 		else{
-			$discussionHandler->RenderDiscussionForm();
+			$discussionHandler->RenderDiscussionForm($wgScriptPath);
 			$wgOut->setPageTitle($discussionHandler->outTitle);
 			$wgOut->addHTML($discussionHandler->outHTML);
 		}
@@ -155,7 +155,7 @@ function fnIBISPageRenderer( &$out, &$text ){
 
 function fnIBISEdit( &$editpage)
 {	
-	global $wgOut,$wgRequest,$wgTitle,$wgUser;
+	global $wgOut,$wgRequest,$wgTitle,$wgUser,$wgScriptPath;
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		//IBIS User Handler for current user
 		$user = new UserHandler($wgUser);
@@ -179,7 +179,7 @@ function fnIBISEdit( &$editpage)
 			$wgOut->redirect($editpage->mTitle->getFullUrl());
 		}
 		// Render Edit form
-		$form_handler = new FormHandler($user,$content);
+		$form_handler = new FormHandler($user,$content,$wgScriptPath);
 		$wgOut->setPageTitle('Add a response to the discussion : '.$form_handler->ibis['title']);
 		$wgOut->addHTML	($form_handler->get_response_form());
 		
