@@ -1,7 +1,13 @@
 <?php
 require_once("YAMLHandler.php");
+require_once("HTMLCleaner.php");
 
 function fnIBISSaveResponse($type,$title,$user,$desc,$page_handler){
+	//Html Cleaner
+	$html_cleaner = new HTMLCleaner();
+	$title = $html_cleaner->clean_data($title);
+	$desc = $html_cleaner->clean_data($desc);
+	
 	$response = $page = array();
 	$page['title'] = $title;
 	$page['type'] = $type;

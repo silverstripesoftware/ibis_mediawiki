@@ -1,5 +1,6 @@
 <?php
 require_once("PageHandler.php");
+require_once("HTMLCleaner.php");
 
 class DiscussionHandler extends PageHandler {
 	function __construct($title,$user,$op){
@@ -64,6 +65,11 @@ class DiscussionHandler extends PageHandler {
 			$this->ibis['parents'] = unserialize($_SESSION[$parent_key]);
 			unset($_SESSION[$parent_key]);
 		}
+		
+		//Html Cleaner
+		$html_cleaner = new HTMLCleaner();
+		$title = $html_cleaner->clean_data($title);
+		$desc = $html_cleaner->clean_data($desc);
 		$this->ibis['title'] = $title;
 		$this->ibis['type'] = $type;
 		$this->ibis['user'] = $user;
@@ -84,8 +90,8 @@ class DiscussionHandler extends PageHandler {
 	function SaveDiscussionForm($title,$type,$desc,$user){
 		$this->_loadSave($title,$type,$desc,$user);
 		if($this->op=="new"){
-			$title = $this->AddDiscussion();
-			$titleObj = Title::newFromText($title);
+			$gen_title = $this->AddDiscussion();
+			$titleObj = Title::newFromText($gen_title);
 			return $titleObj->getFullURL();
 		}
 		elseif($this->op=="edit"){

@@ -32,7 +32,6 @@ class FormHandler extends PageHandler{
 		mode : "textareas",
 		theme : "simple",
 		skin : "o2k7",
-		skin_variant : "silver"
 	});
 </script>';
 	}
