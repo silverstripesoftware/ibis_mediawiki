@@ -1,7 +1,10 @@
 <form method="post" action="">
 	<table style="width:100%">
+	{if $isNew}
+	<input type="hidden" value="topic" name="type" />
+	{else}
 	<tr>
-		<td style="width:60px;">
+		<td >
 			Type:
 		</td>
 		<td>
@@ -13,8 +16,9 @@
 			</select>
 		</td>
 	</tr>
+	{/if}
 	<tr>
-		<td>
+		<td style="width:60px;">
 			Title:
 		</td>
 		<td>

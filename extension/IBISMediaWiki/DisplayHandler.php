@@ -41,8 +41,10 @@ class DisplayHandler extends PageHandler{
 		}
 	}
 	function getEditDiscussionLink(){
-		if (($this->ibis['user'] == $this->user->id) or $this->user->isAdminUser){
-			return $this->title->getLocalURL("action=discussion&op=edit");
+		if(!$this->user->isGuestUser){
+			if (($this->ibis['user'] == $this->user->id) or $this->user->isAdminUser){
+				return $this->title->getLocalURL("action=discussion&op=edit");
+			}
 		}
 		return False;
 	}

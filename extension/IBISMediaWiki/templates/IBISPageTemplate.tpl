@@ -8,14 +8,17 @@
 			{/section}
 		{else}
 			No topics
+			{assign var="type" value="topic" }
 		{/if}
 		</span>
 	</div>
 	<h2>Statement
+	{if $isGuestUser ne True}
 	{if $edit_link}
 		<span class="editsection">
 			[<a href="{$edit_link}" >edit</a>]
 		</span>
+	{/if}
 	{/if}
 	</h2>
 	<div class="ibis_title type_{$type}">

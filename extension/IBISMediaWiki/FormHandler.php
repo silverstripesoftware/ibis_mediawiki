@@ -53,7 +53,7 @@ class FormHandler extends PageHandler{
 </script>';
 	}
 
-	function get_form($title='', $type='', $desc='', $user='') {
+	function get_form($title='', $type='', $desc='', $user='',$op="response") {
 		if(!$user){
 			$user = $this->user->id;
 		}
@@ -68,6 +68,15 @@ class FormHandler extends PageHandler{
 		$smarty->assign('user', $user);
 		$smarty->assign('path', $this->wikipath);
 		
+		if($op=="discussion"){
+			if(!empty($this->ibis['parents']) && isset($this->ibis['parents'])){
+				$isNew = False;
+			}
+			else{
+				$isNew = True;
+			}
+			$smarty->assign('isNew', $isNew);
+		}
 		$form = $smarty->fetch('IBISFormTemplate.tpl');
 		$tiny_mce_script = $this->fnGetTinyMCEScriptInclude();
 		return $tiny_mce_script.$form;
@@ -82,7 +91,9 @@ class FormHandler extends PageHandler{
 		$type=isset($this->ibis['type'])?$this->ibis['type']:"";
 		$user=isset($this->ibis['user'])?$this->ibis['user']:$this->user->id;
 		$desc=isset($this->ibis['desc'])?$this->ibis['desc']:"";
-		return $this->get_form($title,$type,$desc,$user);
+		
+		$isNewDiscussion = $title==""?True:False;
+		return $this->get_form($title,$type,$desc,$user,$op="discussion");
 	}
 }
 ?>

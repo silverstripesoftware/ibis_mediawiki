@@ -40,19 +40,9 @@ class DiscussionHandler extends PageHandler {
 			return True;
 		}
 		elseif($this->op=="edit"){
-			$page = new PageHandler($this->title->getText(),$this->user);
-			$page->LoadCurrentPage();
-			if($this->canUserEdit($page->ibis['user'])){
-				$this->outTitle = "Edit discussion : ".$page->ibis['title'];
-				$this->ibis = $page->ibis;
-				if(isset($page->ibis['responses'])){
-					$key = $this->title->getDBkey()."_responses";
-					$_SESSION[$key] = serialize($page->ibis['responses']);
-				}
-				if(isset($page->ibis['parents'])){
-					$key = $this->title->getDBkey()."_parents";
-					$_SESSION[$key] =  serialize($page->ibis['parents']);
-				}
+			$this->LoadCurrentPage();
+			if($this->canUserEdit($this->ibis['user'])){
+				$this->outTitle = "Edit discussion : ".$this->ibis['title'];
 				return True;
 			}
 			else{
@@ -71,19 +61,10 @@ class DiscussionHandler extends PageHandler {
 		}
 	}
 	function _loadSave($title,$type,$desc,$user){
-		$this->ibis = array();
-		$response_key = $this->title->getDBkey()."_responses";
-		if(isset($_SESSION[$response_key])){
-			$this->ibis['responses'] = unserialize($_SESSION[$response_key]);
-			unset($_SESSION[$response_key]);
-		}
-		$parent_key = $this->title->getDBkey()."_parents";
-		if(isset($_SESSION[$parent_key])){
-			$this->ibis['parents'] = unserialize($_SESSION[$parent_key]);
-			unset($_SESSION[$parent_key]);
-		}
-		
 		//Html Cleaner
+		if($this->op=="edit"){
+		$this->LoadCurrentPage();
+		}
 		$html_cleaner = new HTMLCleaner();
 		$title = $html_cleaner->clean_data($title);
 		$desc = $html_cleaner->clean_data($desc);
