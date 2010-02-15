@@ -1,15 +1,15 @@
 <form method="post" action="">
-	<table>
+	<table style="width:100%">
 	<tr>
-		<td>
+		<td style="width:60px;">
 			Type:
 		</td>
 		<td>
-			<select name="type">
-				<option value="issue" { $issue }>Issue</option>
-				<option value="position" { $position } >Position</option>
-				<option value="supporting_argument" { $supporting_argument } >Supporting Argument</option>
-				<option value="opposing_argument" { $opposing_argument } >Opposing Argument</option>
+			<select name="type" class="ibis_type">
+				<option class="issue" value="issue" { $issue }>Issue</option>
+				<option class="position" value="position" { $position } >Position</option>
+				<option class="supporting_argument" value="supporting_argument" { $supporting_argument } >Support</option>
+				<option class="opposing_argument" value="opposing_argument" { $opposing_argument } >Oppose</option>
 			</select>
 		</td>
 	</tr>

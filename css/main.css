@@ -1584,8 +1584,28 @@ div#mw-search-interwiki-caption {
 	background: url(minus_sm.png) no-repeat;
 	padding-left:20px;
 }
+
+.ibis_type option{
+	vertical-align: middle;
+	padding: 2px 0 2px 20px;
+}
+
+.ibis_type .issue{
+	background: url(issue_sm.png) no-repeat;
+}
+
+.ibis_type .position{
+	background: url(position_sm.png) no-repeat;
+}
+.ibis_type .supporting_argument{
+	background: url(plus_sm.png) no-repeat;
+}
+
+.ibis_type .opposing_argument{
+	background: url(minus_sm.png) no-repeat;
+}
+
 .ibis_conversation .ibis_title{
-	#font-size:25px;
 	padding-right:5px;
 }
 .ibis_conversation .ibis_parent{
@@ -1599,8 +1619,12 @@ div#mw-search-interwiki-caption {
 }
 
 .ibis_title{
-	width:148.7%;
+	width:99.4%;
 }
 .mceLayout{
-	width:150% !important;
+	width:100% !important;
+}
+.mceIframeContainer iframe{
+	height:300px !important;
+	width:99.9% !important;
 }

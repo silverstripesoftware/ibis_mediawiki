@@ -4,7 +4,7 @@
 		<span class="ibis_parent_links">
 		{if $parents}
 			{section name=mysec loop=$parents}
-				<a href="{$base_path}/{$parents[mysec].node}">{$parents[mysec].text}</a>
+				<span class="type_{$parents[mysec].type}"><a href="{$base_path}/{$parents[mysec].node}">{$parents[mysec].text}</a>
 			{/section}
 		{else}
 			No topics

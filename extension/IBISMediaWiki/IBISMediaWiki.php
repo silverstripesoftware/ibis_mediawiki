@@ -1,10 +1,20 @@
 <?php
+/*******************************************************************************
+	Code contributed to the Bloomer Project
+    Copyright (C) 2010 iMorph Inc.
 
-/*
-* Author : Karthik Jayapal
-* Started on : 24/12/2009	
-* For : iMorph Inc.,
-*/
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3 as 
+	published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*******************************************************************************/
 
 if( !defined( 'MEDIAWIKI' ) ) {
 	echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
@@ -29,7 +39,7 @@ $wgExtensionCredits['other'][] = array(
 function fnIBISMediaWiki()
 {
 	global $wgHooks;
-	$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'fnAddCustomBlock';
+	//$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'fnAddCustomBlock';
 	$wgHooks['SkinTemplateContentActions'][] = 'fnIBISTabsHandler';
 	$wgHooks['AlternateEdit'][] = 'fnIBISEdit';
 	$wgHooks['OutputPageBeforeHTML'][] = 'fnIBISPageRenderer';
@@ -115,8 +125,8 @@ function fnIBISActionHandler($action, $article){
 function fnIBISTabsHandler(&$content_actions){
 	global $wgUser,$wgTitle;
 	$user = new UserHandler($wgUser);
-	$tabs_handler = new TabsHandler($content_actions);
-	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+	$tabs_handler = new TabsHandler($content_actions,$wgTitle);
+	if ($tabs_handler->isIBISNode()){
 		$tabs_handler->RemoveEditTab();
 		//Removing unwanted mediawiki tabs 
 		//Discussion/Talk
@@ -126,11 +136,13 @@ function fnIBISTabsHandler(&$content_actions){
 		if($user->isGuest){	
 			return True;
 		}
-
 		//Move
 		$tabs_handler->removeTab('move');
 		//Watch
 		$tabs_handler->removeTab('watch');	
+	}
+	if(!$user->isGuest){	
+		$tabs_handler->addNewDiscussionTab();
 	}
 	return True;
 }
