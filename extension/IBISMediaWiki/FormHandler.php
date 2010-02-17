@@ -66,7 +66,7 @@ class FormHandler extends PageHandler{
 		$smarty->assign($type, 'selected');
 		$smarty->assign('desc', $desc);
 		$smarty->assign('user', $user);
-		$smarty->assign('path', $this->wikipath);
+		//$smarty->assign('path', $this->wikipath);
 		
 		if($op=="discussion"){
 			if(!empty($this->ibis['parents']) && isset($this->ibis['parents'])){

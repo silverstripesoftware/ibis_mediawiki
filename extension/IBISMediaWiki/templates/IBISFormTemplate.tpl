@@ -1,4 +1,3 @@
-<script type="text/javascript" src="{$path}/ibis_includes/ckeditor/ckeditor.js"></script>
 <form method="post" action="">
 	<table style="width:100%">
 	{if $isNew}
@@ -32,18 +31,17 @@
 		</td>
 		<td>
 			<textarea id="desc" rows="3" cols="25" name="desc" >{$desc}</textarea>
-			{literal}
-			<script type="text/javascript">
-				//<![CDATA[
-				CKEDITOR.replace( 'desc',
-					{
-						fullPage : true,
-						toolbar: 'Basic',
-					}
-				);
-				//]]>
-				</script>
-			{/literal}
+			{php}
+			$editor_path = "ibis_includes/ckeditor/"; 
+			include_once($editor_path."ckeditor.php");
+			$CKEditor = new CKEditor();
+			$CKEditor->config['toolbar'] = array(
+			array( 'Bold', 'Italic', 'Underline', 'Strike' ),
+			array( 'Image', 'Link', 'Unlink', 'Anchor' )
+			);
+			$CKEditor->basePath = $editor_path;
+			$CKEditor->replace("desc");
+			{/php}
 		</td>
 	</tr>
 	<tr>
