@@ -37,6 +37,7 @@
 			$CKEditor = new CKEditor();
 			$CKEditor->config['toolbar'] = array(
 			array( 'Bold', 'Italic', 'Underline', 'Strike' ),
+			array('NumberedList','BulletedList'),
 			array( 'Image', 'Link', 'Unlink', 'Anchor' )
 			);
 			$CKEditor->basePath = $editor_path;

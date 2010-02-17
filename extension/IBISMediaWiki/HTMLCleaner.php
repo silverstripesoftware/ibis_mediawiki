@@ -24,10 +24,9 @@ class HTMLCleaner{
 		}
 		$config = array(
 		'safe'=>1,
-		'elements'=>'b,strong,u,i,em,ul,ol,p,span,div,br',
+		'elements'=>'a,b,strong,u,i,em,ul,ol,p,span,div,br,img',
 		);
 		
-		$data = html_entity_decode($data);
 		$cleaned_data = htmLawed($data, $config);
 		return $cleaned_data;
 	}

@@ -1626,10 +1626,6 @@ div#mw-search-interwiki-caption {
 .ibis_title{
 	width:99.4%;
 }
-/*.mceLayout{
-	width:100% !important;
+.cke_editor iframe{
+	height:150% !important;
 }
-.mceIframeContainer iframe{
-	height:300px !important;
-	width:99.9% !important;
-}*/

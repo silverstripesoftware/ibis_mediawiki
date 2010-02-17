@@ -41,17 +41,6 @@ class FormHandler extends PageHandler{
 			'%opposing_argument%' => '',
 		);
 	}
-	
-	function fnGetTinyMCEScriptInclude(){
-		return '<script type="text/javascript" src="'.$this->wikipath.'/ibis_includes/tiny_mce/tiny_mce.js"></script> 
-<script type="text/javascript"> 
-	tinyMCE.init({
-		mode : "textareas",
-		theme : "simple",
-		skin : "o2k7",
-	});
-</script>';
-	}
 
 	function get_form($title='', $type='', $desc='', $user='',$op="response") {
 		if(!$user){
@@ -64,7 +53,7 @@ class FormHandler extends PageHandler{
 		
 		$smarty->assign('title', $title);
 		$smarty->assign($type, 'selected');
-		$smarty->assign('desc', $desc);
+		$smarty->assign('desc', htmlentities($desc));
 		$smarty->assign('user', $user);
 		//$smarty->assign('path', $this->wikipath);
 		
@@ -78,8 +67,7 @@ class FormHandler extends PageHandler{
 			$smarty->assign('isNew', $isNew);
 		}
 		$form = $smarty->fetch('IBISFormTemplate.tpl');
-		$tiny_mce_script = $this->fnGetTinyMCEScriptInclude();
-		return $tiny_mce_script.$form;
+		return $form;
 	}
 	
 	function get_response_form() {
