@@ -1,3 +1,4 @@
+<script type="text/javascript" src="{$path}/ibis_includes/ckeditor/ckeditor.js"></script>
 <form method="post" action="">
 	<table style="width:100%">
 	{if $isNew}
@@ -30,7 +31,19 @@
 			Description:
 		</td>
 		<td>
-			<textarea rows="3" cols="25" name="desc" >{$desc}</textarea>
+			<textarea id="desc" rows="3" cols="25" name="desc" >{$desc}</textarea>
+			{literal}
+			<script type="text/javascript">
+				//<![CDATA[
+				CKEDITOR.replace( 'desc',
+					{
+						fullPage : true,
+						toolbar: 'Basic',
+					}
+				);
+				//]]>
+				</script>
+			{/literal}
 		</td>
 	</tr>
 	<tr>
