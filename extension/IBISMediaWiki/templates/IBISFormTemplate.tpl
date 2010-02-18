@@ -32,7 +32,7 @@
 		<td>
 			<textarea id="desc" rows="3" cols="25" name="desc" >{$desc}</textarea>
 			{php}
-			$editor_path = "ibis_includes/ckeditor/"; 
+			$editor_path = "extensions/IBISMediaWiki/includes/ckeditor/"; 
 			include_once($editor_path."ckeditor.php");
 			$CKEditor = new CKEditor();
 			$CKEditor->config['toolbar'] = array(

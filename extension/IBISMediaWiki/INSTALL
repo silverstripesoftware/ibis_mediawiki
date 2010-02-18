@@ -1,0 +1,27 @@
+== Installation ==
+
+(1) Extract/Download and obtain the directory "IBISMediaWiki" that contains
+    all relevant files. Copy this directory to
+    "[wikipath]/extensions/".
+	The Directory Structure will be:
+	IBISMediaWiki
+		-cache
+		-includes
+			-ckeditor
+			-htmlcleaner
+			-smarty
+		-media
+		-templates
+		-templates_c
+		-DiscussionHandler.php
+		.
+		.
+		-IBISMediaWiki.php
+		.
+		.
+		-YAMLHandlerTest.php
+(2) Insert the following line into the file "[wikipath]/LocalSettings.php":
+
+	$wgGroupPermissions['*']['edit'] = false;
+	require_once("$IP/extensions/IBISMediaWiki/IBISMediaWiki.php");
+

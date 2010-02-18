@@ -46,6 +46,11 @@ function fnIBISMediaWiki()
 	$wgHooks['UnknownAction'][] = 'fnIBISActionHandler';
 }
 
+function fnAddIBIScss(){
+	global $wgOut,$wgScriptPath;
+	$wgOut->addScript("<link rel=\"stylesheet\" type=\"text/css\" href=\"$wgScriptPath/extensions/IBISMediaWiki/media/ibis_custom.css\" />");
+}
+
 function fnSetErrorPage($out){
 	$out->setPageTitle('Error');
 	$out->addHTML('<strong style="color:red">Sorry, You dont have permission to perform this action </strong>');
@@ -73,8 +78,11 @@ function fnAddCustomBlock($skin, $tpl){
 	return true;
 }
 
-function fnIBISActionHandler($action, $article){
+function fnIBISActionHandler($action, $article){	
 	global $wgOut,$wgRequest,$wgUser,$wgScriptPath;
+	
+	fnAddIBIScss();
+	
 	$current_title = $article->getTitle();
 	$user = new UserHandler($wgUser);
 	$op = isset($wgRequest->data['op'])?$wgRequest->data['op']:'';
@@ -124,6 +132,7 @@ function fnIBISActionHandler($action, $article){
 }
 function fnIBISTabsHandler(&$content_actions){
 	global $wgUser,$wgTitle;
+	
 	$user = new UserHandler($wgUser);
 	$tabs_handler = new TabsHandler($content_actions,$wgTitle);
 	if ($tabs_handler->isIBISNode()){
@@ -149,6 +158,9 @@ function fnIBISTabsHandler(&$content_actions){
 
 function fnIBISPageRenderer( &$out, &$text ){
 	global $wgTitle,$wgScript,$wgOut,$wgUser;
+	
+	fnAddIBIScss();
+	
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		$title = $wgTitle;
 		$path = $wgScript;
@@ -168,6 +180,9 @@ function fnIBISPageRenderer( &$out, &$text ){
 function fnIBISEdit( &$editpage)
 {	
 	global $wgOut,$wgRequest,$wgTitle,$wgUser,$wgScriptPath;
+	
+	fnAddIBIScss();
+	
 	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
 		//IBIS User Handler for current user
 		$user = new UserHandler($wgUser);

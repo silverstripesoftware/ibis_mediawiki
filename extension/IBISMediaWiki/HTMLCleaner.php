@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once("$IP/ibis_includes/htmlcleaner/htmLawed.php");
+require_once("$IP/extensions/IBISMediaWiki/includes/htmlcleaner/htmLawed.php");
 class HTMLCleaner{
 	function clean_data($data){
 		if(get_magic_quotes_gpc()){
