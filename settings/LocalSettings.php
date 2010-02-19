@@ -105,7 +105,7 @@ $wgSecretKey = "1158ef0a3b2f428967113850371fff7a61db43dc187f9eb71a5eb5aa6269f653
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, ie 'standard', 'nostalgia', 'cologneblue', 'monobook':
-$wgDefaultSkin = 'monobook';
+$wgDefaultSkin = 'ibis';
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation

@@ -1,0 +1,50 @@
+== Installation ==
+
+(1) Extract/Download and obtain the directory "IBISMediaWiki" that contains
+    all relevant files. Copy this directory to
+    "[wikipath]/extensions/".
+	The Directory Structure should be:
+	[wikipath]/extensions/IBISMediaWiki
+		-cache
+		-includes
+			-ckeditor
+			-htmlcleaner
+			-smarty
+		-media
+		-templates
+		-templates_c
+		-DiscussionHandler.php
+		.
+		.
+		-IBISMediaWiki.php
+		.
+		.
+		-YAMLHandlerTest.php
+
+(2) Extract/Download and obtain the directory "skin" that contains
+    all relevant files. Copy this directory contents(Not the skin directory itself)to
+    "[wikipath]/skins/".
+	The Directory Structure should be:
+	[wikipath]/skins/
+		.
+		.
+		.
+		-ibis
+		-IBIS.php
+		.
+		.
+		.
+(3) Insert the following line into the file "[wikipath]/LocalSettings.php":
+
+	$wgGroupPermissions['*']['edit'] = false;
+	require_once("$IP/extensions/IBISMediaWiki/IBISMediaWiki.php");
+	
+	Then,
+	
+	FIND :
+	$wgDefaultSkin = 'monobook';
+	
+	REPLACE WITH:
+	$wgDefaultSkin = 'ibis';
+	
+	Note: Please clear the browser cache and reload the page to get the ibis skin activated.
