@@ -30,18 +30,23 @@
 			Description:
 		</td>
 		<td>
-			<textarea id="desc" rows="3" cols="25" name="desc" >{$desc}</textarea>
+			<!--<textarea id="desc" rows="3" cols="25" name="desc" >{$desc}</textarea>-->
 			{php}
-			$editor_path = "extensions/IBISMediaWiki/includes/ckeditor/"; 
-			include_once($editor_path."ckeditor.php");
-			$CKEditor = new CKEditor();
-			$CKEditor->config['toolbar'] = array(
+			$editor_path = "extensions/IBISMediaWiki/includes/fckeditor/"; 
+			include_once($editor_path."fckeditor.php");
+			$FCKeditor = new FCKeditor('desc');
+			$FCKeditor->BasePath = $editor_path;
+			print_r($FCKEditor);
+			/*$CKEditor->config['toolbar'] = array(
 			array( 'Bold', 'Italic', 'Underline', 'Strike' ),
 			array('NumberedList','BulletedList'),
 			array( 'Image', 'Link', 'Unlink', 'Anchor' )
-			);
-			$CKEditor->basePath = $editor_path;
-			$CKEditor->replace("desc");
+			);*/
+			$desc = $this->get_template_vars('desc');
+			$FCKeditor->Height = '350px';
+			$FCKeditor->ToolbarSet = 'Basic';
+			$FCKeditor->Value = $desc;
+			$FCKeditor->Create();
 			{/php}
 		</td>
 	</tr>

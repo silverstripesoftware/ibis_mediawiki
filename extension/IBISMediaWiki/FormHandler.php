@@ -53,7 +53,8 @@ class FormHandler extends PageHandler{
 		
 		$smarty->assign('title', $title);
 		$smarty->assign($type, 'selected');
-		$smarty->assign('desc', htmlentities($desc));
+		//$smarty->assign('desc', htmlentities($desc));
+		$smarty->assign('desc', $desc);
 		$smarty->assign('user', $user);
 		//$smarty->assign('path', $this->wikipath);
 		
