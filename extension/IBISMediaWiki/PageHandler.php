@@ -81,9 +81,10 @@ class PageHandler {
 		return true;
 	}
 	
-	function GetNextPageTitle(){	
+	function GetNextPageTitle(){
+		global $wgDBprefix;
 		$dbr = &wfGetDB( DB_MASTER );
-		$q = "select max(page_id) as max_page_id from page";
+		$q = "select max(page_id) as max_page_id from ".$wgDBprefix."page";
 		$res = $dbr->query($q);
 		$row = $dbr->fetchObject($res);
 		$next_id = ((int)$row->max_page_id)+1;

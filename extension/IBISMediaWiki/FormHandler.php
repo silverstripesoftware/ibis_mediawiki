@@ -18,7 +18,6 @@
 
 require_once("YAMLHandler.php");
 require_once("PageHandler.php");
-require_once("$IP/extensions/IBISMediaWiki/includes/smarty/Smarty.class.php");
 class FormHandler extends PageHandler{
 	function __construct($user,$ibis,$wikipath){
 		$this->user = $user;

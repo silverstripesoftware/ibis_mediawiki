@@ -33,15 +33,9 @@
 			<!--<textarea id="desc" rows="3" cols="25" name="desc" >{$desc}</textarea>-->
 			{php}
 			$editor_path = "extensions/IBISMediaWiki/includes/fckeditor/"; 
-			include_once($editor_path."fckeditor.php");
 			$FCKeditor = new FCKeditor('desc');
 			$FCKeditor->BasePath = $editor_path;
 			print_r($FCKEditor);
-			/*$CKEditor->config['toolbar'] = array(
-			array( 'Bold', 'Italic', 'Underline', 'Strike' ),
-			array('NumberedList','BulletedList'),
-			array( 'Image', 'Link', 'Unlink', 'Anchor' )
-			);*/
 			$desc = $this->get_template_vars('desc');
 			$FCKeditor->Height = '350px';
 			$FCKeditor->ToolbarSet = 'Basic';

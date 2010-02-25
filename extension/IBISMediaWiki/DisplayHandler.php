@@ -18,13 +18,14 @@
 
 require_once("YAMLHandler.php");
 require_once("PageHandler.php");
-require_once("$IP/extensions/IBISMediaWiki/includes/smarty/Smarty.class.php");
 
 class DisplayHandler extends PageHandler{
-	function __construct($title,$user=""){
+	function __construct($title="",$user=""){
 		$this->title = $title;
-		$article = new Article($title);
-		$this->content = $article->getContent();
+		if($title){
+			$article = new Article($title);
+			$this->content = $article->getContent();
+		}
 		$this->user = $user;
 	}
 	function setArticleFactory(){
@@ -105,6 +106,39 @@ class DisplayHandler extends PageHandler{
 		}
 		$smarty->assign('responses', $responses);
 		return $smarty->fetch('IBISPageTemplate.tpl');
+	}
+	
+	function getIBISIndex($path){
+		global $wgDBprefix;
+		$smarty = new Smarty();
+		$smarty->template_dir = './extensions/IBISMediaWiki/templates';
+		$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
+		$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
+		
+		$dbr = &wfGetDB( DB_MASTER );
+		$q = "SELECT page_title FROM ".$wgDBprefix."page WHERE 
+page_id IN (
+SELECT rev_page FROM revision 
+WHERE rev_id IN (SELECT old_id FROM TEXT WHERE old_text REGEXP 'type: topic')
+) 
+AND 
+page_title REGEXP 'IBIS_[0-9]*$' 
+ORDER BY page_id desc";
+		$res = $dbr->query($q);
+		
+		$this->setArticleFactory();
+		$index = array();
+		while($row = $dbr->fetchObject($res)){
+			$ibis = $this->GetContent($row->page_title,True);
+			$index[] = array(
+				"page" => $row->page_title,
+				"title" => $ibis['title'],
+			);
+			
+		}
+		$smarty->assign('index', $index);
+		$smarty->assign('base_path',$path);
+		return $smarty->fetch('IBISIndexTemplate.tpl');
 	}
 }
 ?>

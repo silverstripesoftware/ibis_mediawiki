@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once('spyc.php');
+
 class YAMLHandler {
 	function YAMLToArray($yaml){
 		return Spyc::YAMLLoad($yaml);

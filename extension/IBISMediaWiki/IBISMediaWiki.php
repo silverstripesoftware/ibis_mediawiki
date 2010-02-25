@@ -21,6 +21,7 @@ if( !defined( 'MEDIAWIKI' ) ) {
 	die();
 }
 
+require_once('IBISIncludes.php');
 require_once('FormHandler.php');
 require_once('PageHandler.php');
 require_once('DisplayHandler.php');
@@ -39,7 +40,7 @@ $wgExtensionCredits['other'][] = array(
 function fnIBISMediaWiki()
 {
 	global $wgHooks;
-	//$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'fnAddCustomBlock';
+	$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'fnIBISBlockHandler';
 	$wgHooks['SkinTemplateContentActions'][] = 'fnIBISTabsHandler';
 	$wgHooks['AlternateEdit'][] = 'fnIBISEdit';
 	$wgHooks['OutputPageBeforeHTML'][] = 'fnIBISPageRenderer';
@@ -51,25 +52,23 @@ function fnSetErrorPage($out){
 	$out->addHTML('<strong style="color:red">Sorry, You dont have permission to perform this action </strong>');
 }
 
-function fnAddCustomBlock($skin, $tpl){
+function fnIBISBlockHandler($skin, $tpl){
 	global $wgScript,$wgUser;
-	$user = new UserHandler($wgUser);
+	/*$user = new UserHandler($wgUser);
 	if($user->isGuest){	
 		return True;
-	}
+	}*/
 	$sidebar = $tpl->data['sidebar'];
 	$custom_sidebar = array();
-	//Adding a new block on top
-	$custom_sidebar['IBIS ACTIONS'][]	= array(
-		'text' => 'New Discussion',
-		'href' => $wgScript.'?action=discussion&op=new',
-		'id' => 'n-ibis-actions',
+	//Adding IBIS Index link in navigation sidebar block
+	$ibis_index	= array(
+		'text' => 'IBIS Conversation Index',
+		'href' => $wgScript.'/IBIS_Index',
+		'id' => 'n-ibis-index',
 		'active' => '',
 	);
-	foreach($sidebar as $key=>$val){
-		$custom_sidebar[$key] = $val;
-	}
-	$tpl->set( 'sidebar', $custom_sidebar );
+	$sidebar['navigation'][] = $ibis_index;
+	$tpl->set( 'sidebar', $sidebar );
 	return true;
 }
 
@@ -149,11 +148,16 @@ function fnIBISTabsHandler(&$content_actions){
 }
 
 function fnIBISPageRenderer( &$out, &$text ){
-	global $wgTitle,$wgScript,$wgOut,$wgUser;
-	
-	if (preg_match("/^IBIS\s\d+$/",$wgTitle->getText())){
+	global $wgTitle,$wgScript,$wgOut,$wgUser,$wgDBprefix ;
+	$page_title = $wgTitle->getText();
+	$path = $wgScript;
+	if($page_title == "IBIS Index"){
+		$wgOut->setPageTitle('IBIS Conversation Index');
+		$display = new DisplayHandler();
+		$text = $display->getIBISIndex($path);
+	}
+	elseif (preg_match("/^IBIS\s\d+$/",$page_title)){
 		$title = $wgTitle;
-		$path = $wgScript;
 		$user = new UserHandler($wgUser);
 		$display = new DisplayHandler($title,$user);
 		if($display->isConvertionApplicableForThisPage()){
