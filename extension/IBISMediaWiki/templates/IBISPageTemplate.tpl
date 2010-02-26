@@ -1,6 +1,6 @@
 <div class="ibis_conversation">	
 	<div class="ibis_parent">
-		<strong>Topic(s) linking here</strong>
+		<strong>Parent topic : </strong>
 		<span class="ibis_parent_links">
 		{if $parents}
 			{section name=mysec loop=$parents}
