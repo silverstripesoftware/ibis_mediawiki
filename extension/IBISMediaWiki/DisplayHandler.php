@@ -118,8 +118,8 @@ class DisplayHandler extends PageHandler{
 		$dbr = &wfGetDB( DB_MASTER );
 		$q = "SELECT page_title FROM ".$wgDBprefix."page WHERE 
 page_id IN (
-SELECT rev_page FROM revision 
-WHERE rev_id IN (SELECT old_id FROM TEXT WHERE old_text REGEXP 'type: topic')
+SELECT rev_page FROM ".$wgDBprefix."revision 
+WHERE rev_id IN (SELECT old_id FROM ".$wgDBprefix."text WHERE old_text REGEXP 'type: topic')
 ) 
 AND 
 page_title REGEXP 'IBIS_[0-9]*$' 
@@ -133,8 +133,7 @@ ORDER BY page_id desc";
 			$index[] = array(
 				"page" => $row->page_title,
 				"title" => $ibis['title'],
-			);
-			
+			);			
 		}
 		$smarty->assign('index', $index);
 		$smarty->assign('base_path',$path);
