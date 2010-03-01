@@ -51,7 +51,7 @@ class FormHandler extends PageHandler{
 		$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
 		
 		$smarty->assign('title', $title);
-		$smarty->assign($type, 'selected');
+		$smarty->assign($type, 'checked');
 		//$smarty->assign('desc', htmlentities($desc));
 		$smarty->assign('desc', $desc);
 		$smarty->assign('user', $user);

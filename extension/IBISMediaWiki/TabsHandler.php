@@ -40,8 +40,8 @@ class TabsHandler{
 	}
 	function addNewDiscussionTab()
 	{
-		$this->tabs["new_discussion"] = Array(
-			'text' => "New Discussion",
+		$this->tabs["new_conversation"] = Array(
+			'text' => "New Conversation",
 			'href' => $this->title->getLocalURL("action=discussion&op=new"),
 		);
 	}

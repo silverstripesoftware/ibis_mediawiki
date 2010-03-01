@@ -23,8 +23,8 @@ class DisplayHandler extends PageHandler{
 	function __construct($title="",$user=""){
 		$this->title = $title;
 		if($title){
-			$article = new Article($title);
-			$this->content = $article->getContent();
+			$this->article = new Article($title);
+			$this->content = $this->article->getContent();
 		}
 		$this->user = $user;
 	}
@@ -67,6 +67,22 @@ class DisplayHandler extends PageHandler{
 		$smarty->assign('ibis_title', $this->ibis['title']);
 		$desc = isset($this->ibis['desc'])?$this->ibis['desc']:'';
 		$smarty->assign('desc', $desc);
+		
+		/////////////
+		$user = User::newFromId((int)$this->ibis['user']);
+		$smarty->assign('author', $user->getName());
+		$author = $this->article->getLastNAuthors(1);
+		$smarty->assign('last_author', $author[0]);
+		$timestamp = $this->article->getTimestamp();
+		$year = substr($timestamp, 0, 4);
+		$month = substr($timestamp, 4, 2);
+		$day = substr($timestamp, 6, 2);
+		$hour = substr($timestamp, 8, 2);
+		$minute = substr($timestamp, 10, 2);
+		$second = substr($timestamp, 12, 2);
+		$date = date('M d, Y H:i:s', mktime($hour, $minute, $second, $month, $day, $year));
+		$smarty->assign('timestamp',$date);
+		/////////		
 		
 		$parents = array();
 		if(isset($this->ibis['parents']) && !empty($this->ibis['parents'])){

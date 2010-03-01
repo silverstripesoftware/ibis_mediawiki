@@ -22,8 +22,9 @@
 	{/if}
 	</h2>
 	<div class="ibis_title type_{$type}">
-		{$ibis_title}
+		{$ibis_title}  
 	</div>
+	<p class="ibis_meta"> Created by : {$author}, Last Edited by : {$last_author} on {$timestamp} </p>
 	<p>
 		{$desc}
 	</p>

@@ -8,12 +8,10 @@
 			Type:
 		</td>
 		<td>
-			<select name="type" class="ibis_type">
-				<option class="issue" value="issue" { $issue }>Issue</option>
-				<option class="position" value="position" { $position } >Position</option>
-				<option class="supporting_argument" value="supporting_argument" { $supporting_argument } >Support</option>
-				<option class="opposing_argument" value="opposing_argument" { $opposing_argument } >Oppose</option>
-			</select>
+			<input type="radio" name="type" class="issue" value="issue" { $issue }/>Issue
+			<input type="radio" name="type" class="position" value="position" { $position } />Position
+			<input type="radio" name="type" class="supporting_argument" value="supporting_argument" { $supporting_argument } />Support
+			<input type="radio" name="type" class="opposing_argument" value="opposing_argument" { $opposing_argument } />Oppose
 		</td>
 	</tr>
 	{/if}
