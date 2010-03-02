@@ -42,7 +42,7 @@ class DisplayHandler extends PageHandler{
 		}
 	}
 	function getEditDiscussionLink(){
-		if(!$this->user->isGuestUser){
+		if(!$this->user->isGuest){
 			if (($this->ibis['user'] == $this->user->id) or $this->user->isAdminUser){
 				return $this->title->getLocalURL("action=discussion&op=edit");
 			}
@@ -53,10 +53,11 @@ class DisplayHandler extends PageHandler{
 		$this->setArticleFactory();
 		
 		$smarty = new Smarty();
-		$smarty->template_dir = './extensions/IBISMediaWiki/templates';
-		$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
-		$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
-		
+		if( defined( 'MEDIAWIKI' ) ) {
+			$smarty->template_dir = './extensions/IBISMediaWiki/templates';
+			$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
+			$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
+		}
 		$smarty->assign('base_path', $path);
 		$smarty->assign('title', $this->title->getDBkey());
 		$edit_link = $this->getEditDiscussionLink();
@@ -108,7 +109,13 @@ class DisplayHandler extends PageHandler{
 				$type = $ibis['type'];
 				$title = $ibis['title'];
 				if(!$this->user->isGuest){
-					if(($ibis['user'] == $this->user->id) || $this->user->isAdminUser){
+					if(isset($response['user'])){
+						$user = $response['user'];
+					}
+					else{
+						$user = $ibis['user'];
+					}
+					if(( $user== $this->user->id) || $this->user->isAdminUser){
 						$owner = True;
 					}
 				}
@@ -118,7 +125,7 @@ class DisplayHandler extends PageHandler{
 				'text'=>$title,
 				'owner'=>$owner,
 				);
-			}
+			} 
 		}
 		$smarty->assign('responses', $responses);
 		return $smarty->fetch('IBISPageTemplate.tpl');
@@ -127,10 +134,11 @@ class DisplayHandler extends PageHandler{
 	function getIBISIndex($path){
 		global $wgDBprefix;
 		$smarty = new Smarty();
-		$smarty->template_dir = './extensions/IBISMediaWiki/templates';
-		$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
-		$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
-		
+		if( defined( 'MEDIAWIKI' ) ) {
+			$smarty->template_dir = './extensions/IBISMediaWiki/templates';
+			$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
+			$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
+		}
 		$dbr = &wfGetDB( DB_MASTER );
 		$q = "SELECT page_title FROM ".$wgDBprefix."page WHERE 
 page_id IN (

@@ -76,8 +76,8 @@ class PageHandler {
 		if(gettype($content)=='array'){
 			$content = YAMLHandler::ArrayToYAML($content);
 		}
-		$article = $this->_getObject($title);
-		$article->doEdit($content,'');
+		$this->article = $this->_getObject($title);
+		$this->article->doEdit($content,'');
 		return true;
 	}
 	
@@ -116,6 +116,7 @@ class PageHandler {
 		}		
 		$parent = $this->title->getDBkey();
 		$ibis = $this->GetContent($node,True);
+		//print_r($ibis);
 		if(isset($ibis['parents'])){
 			$ibis['parents'] = array_remove_value($ibis['parents'],$parent);
 			if (!count($ibis['parents'])){

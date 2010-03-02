@@ -16,9 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once 'PHPUnit/Framework.php';
+require_once 'UnittestIncludes.php';
 require_once("DiscussionHandler.php");
-require_once("DummyClasses.php");
 
 class DiscussionHandlerTest extends PHPUnit_Framework_TestCase {
 	function get_ibis(){
@@ -65,8 +64,8 @@ class DiscussionHandlerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(true,count($this->discussion->ibis)>0);
 	}
 	function test__loadRender_should_display_warning_msg_when_non_owner_or_non_admin_user_edit(){
-		//Article owner 1 ; current user - 2
-		$this->setup_discussion(2,'edit');
+		//Article owner 1 ; current user - 3
+		$this->setup_discussion(3,'edit');
 		$this->discussion->_loadRender();
 		$this->assertEquals("Warning!",$this->discussion->outTitle);
 		$this->assertEquals('<strong style="color:red">Please do not try to edit other user discussion. You can still add responses to it.</strong>',$this->discussion->outHTML);
@@ -74,9 +73,10 @@ class DiscussionHandlerTest extends PHPUnit_Framework_TestCase {
 	function test__loadSave_should_set_all_the_passed_values_in_ibis_array(){
 		//Article owner 1 ; current user - 1
 		$this->setup_discussion(1,'edit');
-		$this->discussion->_loadSave('sample title','issue','2');
+		$this->discussion->_loadSave('sample title','issue','sample desc','2');
 		$this->assertEquals("sample title",$this->discussion->ibis['title']);
 		$this->assertEquals("issue",$this->discussion->ibis['type']);
+		$this->assertEquals("sample desc",$this->discussion->ibis['desc']);
 		$this->assertEquals("2",$this->discussion->ibis['user']);
 	}
 }

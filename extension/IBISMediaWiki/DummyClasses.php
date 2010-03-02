@@ -19,22 +19,34 @@
 class User{
 	function __construct($id){
 		$this->id = $id;
-		$this->isAdminUser = $id==1?true:false;
-		$this->isGuest = $id==0?true:false;
+		$this->isAdminUser = $id==1?True:False;
+		$this->isGuest = $id==0?True:False;
+	}
+	function newFromId($id){
+		return new User($id);
+	}
+	function getName(){
+		return "User".$this->id;
 	}
 }
 
 class Title {
-	function __construct(){
-		$this->title="IBIS 123";
+	function __construct($title = "IBIS 123"){
+		$this->title=$title;
 	}
 	function newFromText($page_title) {
 	}
 	function getText(){
 		return $this->title;
 	}
-	function getLocalURL(){
-		return "";
+	function getLocalURL($v=""){
+		return $v;
+	}
+	function getDBkey(){
+		return $this->title;
+	}
+	function getEditURL(){
+		return "title=".$this->title."&action=edit";
 	}
 }
 
@@ -61,12 +73,24 @@ class Article {
 	function doEdit($data, $comment) {
 		$this->data = $data;
 	}
+	
+	function getLastNAuthors($n){
+		return array("test");
+	}
+	
+	function getTimestamp(){
+		return 20100301081607;
+	}
 }
 
 $article_data = "
 ---
 title: Sample Issue
 type: issue
+user: 2
+desc: '<p>test sdtes df dsf &nbsp;</p>'
+parents: 
+  - IBIS_135
 responses: 
   - 
     title: Sample Position

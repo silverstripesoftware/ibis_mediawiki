@@ -46,16 +46,15 @@ class FormHandler extends PageHandler{
 			$user = $this->user->id;
 		}
 		$smarty = new Smarty();
-		$smarty->template_dir = './extensions/IBISMediaWiki/templates';
-		$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
-		$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
-		
+		if( defined( 'MEDIAWIKI' ) ) {
+			$smarty->template_dir = './extensions/IBISMediaWiki/templates';
+			$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
+			$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
+		}
 		$smarty->assign('title', $title);
 		$smarty->assign($type, 'checked');
-		//$smarty->assign('desc', htmlentities($desc));
 		$smarty->assign('desc', $desc);
 		$smarty->assign('user', $user);
-		//$smarty->assign('path', $this->wikipath);
 		
 		if($op=="discussion"){
 			if(!empty($this->ibis['parents']) && isset($this->ibis['parents'])){

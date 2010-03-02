@@ -16,30 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once 'PHPUnit/Framework.php';
-require_once 'YAMLHandler.php';
+require_once 'UnittestIncludes.php';
 require_once 'PageHandler.php';
-require_once("DummyClasses.php");
-
 
 class PageHandlerTest extends PHPUnit_Framework_TestCase {
-	function get_page_handler($article_data,$user_id) {
+	function get_page_handler($article_data,$user_id,$title="IBIS_15") {
 		$this->article = new Article('');
 		$this->article->data = $article_data;
 		$user = new User($user_id);
-		$page_handler = new PageHandler("IBIS_15", $user);
+		$title = new Title($title);
+		$page_handler = new PageHandler($title, $user);
 		$page_handler->factory = new TestArticleFactory($this->article);
 		$page_handler->LoadCurrentPage();
 		return $page_handler;
 	}
 	
 	function test_GetContent_should_return_yaml_data_if_ibis_False() {
+		global $article_data;
 		$page_handler = $this->get_page_handler($article_data,1);
 		$content = $page_handler->GetContent("IBIS_15");
 		$this->assertEquals($article_data, $content);
 	}
 	
 	function test_GetContent_should_transform_data_to_array_if_ibis_True() {
+		global $article_data;
 		$page_handler = $this->get_page_handler($article_data,1);
 		$content = $page_handler->GetContent("IBIS_15", True);
 		$this->assertEquals("Sample Issue", $content["title"]);
@@ -51,6 +51,7 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	function test_EditContent_should_replace_article_content() {
+		global $article_data;
 		$article_data = "sample content 1";
 		$page_handler = $this->get_page_handler($article_data,1);
 		$content = $page_handler->EditContent("IBIS_15", "sample content 2");
@@ -58,7 +59,7 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function test_EditContent_should_replace_article_content_even_when_content_in_array_form(){
-				
+		global $article_data;
 		$page_handler = $this->get_page_handler($article_data,1);
 		$content_array = YAMLHandler::YAMLToArray($article_data);
 		$content_array['responses'][0]['title'] = 'Changed position';
@@ -67,24 +68,14 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($changed_content, $this->article->data);
 	}	
 	
-	function test_LoadCurrentPage_should_remove_only_current_users_responses_if_not_admin(){
-				
-		$page_handler = $this->get_page_handler($article_data,2);
-		$ibis_yaml = YAMLHandler::ArrayToYAML($page_handler->ibis);
-		$this->assertEquals(0, preg_match('/Oppose/', $ibis_yaml));//user 2
-		$this->assertEquals(0, preg_match('/IBIS_31/', $ibis_yaml));//user 2
-		$this->assertEquals(1, preg_match('/Sample Position/', $ibis_yaml));//user 1
-		$this->assertEquals(1, preg_match('/IBIS_15/', $ibis_yaml));//user 1
+	function test_removeParent_should_remove_current_node_from_parents_array(){
+		global $article_data;
+		$page_handler = $this->get_page_handler($article_data,1,"IBIS_135");
+		$page_handler->removeParent("IBIS_135");
+		$content = $page_handler->article->getContent();
+		$content_array = YAMLHandler::YAMLToArray($content);
+		$this->assertEquals(false, isset($content_array['parents']));
 	}
 	
-	function test_LoadCurrentPage_should_remove_all_responses_if_admin(){
-				
-		$page_handler = $this->get_page_handler($article_data,1);
-		$ibis_yaml = YAMLHandler::ArrayToYAML($page_handler->ibis);
-		$this->assertEquals(0, preg_match('/Oppose/', $ibis_yaml));//user 2
-		$this->assertEquals(0, preg_match('/IBIS_31/', $ibis_yaml));//user 2
-		$this->assertEquals(0, preg_match('/Sample Position/', $ibis_yaml));//user 1
-		$this->assertEquals(0, preg_match('/IBIS_15/', $ibis_yaml));//user 1
-	}
 }
 ?>
