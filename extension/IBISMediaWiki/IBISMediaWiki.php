@@ -20,8 +20,11 @@ if( !defined( 'MEDIAWIKI' ) ) {
 	echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
 	die();
 }
-
+//Third pary libraries 
 require_once('IBISIncludes.php');
+//Our own handlers
+require_once("DBWrapper.php");
+require_once("YAMLHandler.php");
 require_once('FormHandler.php');
 require_once('PageHandler.php');
 require_once('DisplayHandler.php');

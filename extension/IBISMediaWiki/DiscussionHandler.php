@@ -17,7 +17,6 @@
 *******************************************************************************/
 
 require_once("PageHandler.php");
-require_once("HTMLCleaner.php");
 
 class DiscussionHandler extends PageHandler {
 	function __construct($title,$user,$op){

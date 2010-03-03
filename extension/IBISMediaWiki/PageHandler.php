@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once("YAMLHandler.php");
 require_once("HTMLCleaner.php");
 
 function fnIBISSaveResponse($type,$title,$user,$desc,$page_handler){
@@ -82,14 +81,8 @@ class PageHandler {
 	}
 	
 	function GetNextPageTitle(){
-		global $wgDBprefix;
-		$dbr = &wfGetDB( DB_MASTER );
-		$q = "select max(page_id) as max_page_id from ".$wgDBprefix."page";
-		$res = $dbr->query($q);
-		$row = $dbr->fetchObject($res);
-		$next_id = ((int)$row->max_page_id)+1;
-		
-		return "IBIS_".$next_id;
+		$db = new DBWrapper();
+		return $db->get_next_page_title();
 	}
 	
 	function AddPage($content){

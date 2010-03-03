@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once("YAMLHandler.php");
 require_once("PageHandler.php");
 class FormHandler extends PageHandler{
 	function __construct($user,$ibis,$wikipath){

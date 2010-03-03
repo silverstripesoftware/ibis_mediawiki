@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-require_once("YAMLHandler.php");
 require_once("PageHandler.php");
 
 class DisplayHandler extends PageHandler{
@@ -132,33 +131,14 @@ class DisplayHandler extends PageHandler{
 	}
 	
 	function getIBISIndex($path){
-		global $wgDBprefix;
 		$smarty = new Smarty();
 		if( defined( 'MEDIAWIKI' ) ) {
 			$smarty->template_dir = './extensions/IBISMediaWiki/templates';
 			$smarty->compile_dir = './extensions/IBISMediaWiki/templates_c';		
 			$smarty->caching_dir = './extensions/IBISMediaWiki/cache';
 		}
-		$dbr = &wfGetDB( DB_MASTER );
-		$q = "SELECT page_title FROM ".$wgDBprefix."page WHERE 
-page_id IN (
-SELECT rev_page FROM ".$wgDBprefix."revision 
-WHERE rev_id IN (SELECT old_id FROM ".$wgDBprefix."text WHERE old_text REGEXP 'type: topic')
-) 
-AND 
-page_title REGEXP 'IBIS_[0-9]*$' 
-ORDER BY page_id desc";
-		$res = $dbr->query($q);
-		
-		$this->setArticleFactory();
-		$index = array();
-		while($row = $dbr->fetchObject($res)){
-			$ibis = $this->GetContent($row->page_title,True);
-			$index[] = array(
-				"page" => $row->page_title,
-				"title" => $ibis['title'],
-			);			
-		}
+		$db = new DBWrapper();
+		$index = $db->get_ibis_conversation_index($this);
 		$smarty->assign('index', $index);
 		$smarty->assign('base_path',$path);
 		return $smarty->fetch('IBISIndexTemplate.tpl');
