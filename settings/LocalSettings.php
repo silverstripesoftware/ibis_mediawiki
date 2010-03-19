@@ -138,10 +138,24 @@ require_once("$IP/extensions/IBISMediaWiki/IBISMediaWiki.php");
 
 #Semantic mediawiki extension
 
-include_once("$IP/extensions/SemanticMediaWiki/includes/SMW_Settings.php");
-enableSemantics('localhost');
+#include_once("$IP/extensions/SemanticMediaWiki/includes/SMW_Settings.php");
+#enableSemantics('localhost');
 
 #Semantic Forms extension
 #include_once("$IP/extensions/SemanticForms/includes/SF_Settings.php");
+
+######FedServer settings######
+
+$wgIBISFedServerBaseUrl = 'http://localhost/test/';
+$wgIBISFedServerConversationUrl = 'conversation.php';
+$wgIBISFedServerNodeUrl = 'node.php';
+$wgIBISFedServerUser = 'admin';
+$wgIBISFedServerPwd = 'admin';
+
+// $wgIBISFedServerBaseUrl = 'http://localhost:8080/ws/ibis/';
+// $wgIBISFedServerConversationUrl = 'conversation/';
+// $wgIBISFedServerNodeUrl = 'node/';
+// $wgIBISFedServerUser = 'admin';
+// $wgIBISFedServerPwd = 'admin';
 
 
