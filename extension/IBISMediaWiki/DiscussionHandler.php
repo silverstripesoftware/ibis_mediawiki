@@ -84,12 +84,14 @@ class DiscussionHandler extends PageHandler {
 	function ModifyDiscussion(){
 		$this->_save($this->title->getText());
 	}
-	function SaveDiscussionForm($title,$type,$desc,$user){
+	function SaveDiscussionForm($fed_handler,$title,$type,$desc,$user,$user_name){
 		$this->_loadSave($title,$type,$desc,$user);
 		if($this->op=="new"){
 			$gen_title = $this->AddDiscussion();
 			$titleObj = Title::newFromText($gen_title);
-			return $titleObj->getFullURL();
+			$full_url = $titleObj->getFullURL();
+			$fed_handler->add_conversation($gen_title,$type,$title,$desc,$user_name,$full_url);
+			return $full_url;
 		}
 		elseif($this->op=="edit"){
 			$this->ModifyDiscussion();
