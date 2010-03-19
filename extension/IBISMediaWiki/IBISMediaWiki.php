@@ -25,12 +25,13 @@ require_once('IBISIncludes.php');
 //Our own handlers
 require_once("DBWrapper.php");
 require_once("YAMLHandler.php");
+require_once('UserHandler.php');
 require_once('FormHandler.php');
 require_once('PageHandler.php');
 require_once('DisplayHandler.php');
-require_once('UserHandler.php');
 require_once('DiscussionHandler.php');
 require_once('TabsHandler.php');
+require_once('FedServerHandler.php');
 
 $wgExtensionFunctions[] = 'fnIBISMediaWiki';
 $wgExtensionCredits['other'][] = array(
@@ -90,9 +91,10 @@ function fnIBISActionHandler($action, $article){
 			if($wgRequest->getCheck('save')){
 				$title = $wgRequest->data['ibis_title'];
 				$type = $wgRequest->data['type'];
-				$user = $wgRequest->data['user'];
+				$user_id = $wgRequest->data['user'];
 				$desc = $wgRequest->data['desc'];
-				$url = $discussionHandler->SaveDiscussionForm($title,$type,$desc,$user);
+				$fed_handler = new FedServerHandler();
+				$url = $discussionHandler->SaveDiscussionForm($fed_handler,$title,$type,$desc,$user_id,$user->name);
 				$wgOut->redirect($url);
 			}
 			if($wgRequest->getCheck('cancel')){
@@ -219,7 +221,8 @@ function fnIBISAddResponse($request,$titleObj,$user){
 	$page_handler = new PageHandler($titleObj,$user);
 	$page_handler->LoadCurrentPage();
 	if($title!=''){
-		$response = fnIBISSaveResponse($type,$title,$user,$desc,$page_handler);
+		$fed_handler = new FedServerHandler();
+		$response = fnIBISSaveResponse($fed_handler,$type,$title,$user,$desc,$page_handler);
 		$page_handler->ibis['responses'][] = $response;
 		$page_handler->SavePage();
 	}
