@@ -48,3 +48,11 @@
 	$wgDefaultSkin = 'ibis';
 	
 	Note: Please clear the browser cache and reload the page to get the ibis skin activated.
+	
+	Add the following settings variables with proper value.
+	
+	$wgIBISFedServerBaseUrl = 'http://localhost:8080/ws/ibis/';
+	$wgIBISFedServerConversationUrl = 'conversation/';
+	$wgIBISFedServerNodeUrl = 'node/';
+	$wgIBISFedServerUser = 'admin';
+	$wgIBISFedServerPwd = 'admin';
