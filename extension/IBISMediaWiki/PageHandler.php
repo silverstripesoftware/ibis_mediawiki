@@ -17,8 +17,7 @@
 *******************************************************************************/
 
 require_once("HTMLCleaner.php");
-
-function fnIBISSaveResponse($type,$title,$user,$desc,$page_handler){
+function fnIBISSaveResponse($fed_handler,$type,$title,$user,$desc,$page_handler){
 	//Html Cleaner
 	$html_cleaner = new HTMLCleaner();
 	$title = $html_cleaner->clean_data($title);
@@ -32,6 +31,13 @@ function fnIBISSaveResponse($type,$title,$user,$desc,$page_handler){
 	$page['parents'][]=$page_handler->title->getDBkey();
 	$response['node'] = $page_handler->AddPage($page);
 	$response['user'] = $user;
+	// Fed server communication : add node
+	$mwUser =  User::newFromId((int)$user);
+	$userObj =  new UserHandler($mwUser);
+	$user_name = $userObj->name;
+	$titleObj = Title::newFromText($response['node']);
+	$full_url = $titleObj->getFullURL();
+	$fed_handler->add_node($page['parents'][0],$page_handler->ibis['type'],$response['node'],$page['type'],$page['title'],$page['desc'],$user_name,$full_url);
 	return $response;
 }
 
