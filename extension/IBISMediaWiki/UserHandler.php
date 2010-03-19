@@ -21,6 +21,7 @@ class UserHandler{
 		$this->id = $userObj->getId();
 		$this->isAdminUser = in_array( 'sysop', $userObj->getGroups() );
 		$this->isGuest = $userObj->isAnon();
+		$this->name = $userObj->getName();
 	}
 }
 ?>
