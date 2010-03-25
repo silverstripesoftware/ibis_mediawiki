@@ -25,6 +25,13 @@ class FedServerHandler {
 		$this->base = $wgIBISFedServerBaseUrl;
 		$this->conversation = $wgIBISFedServerConversationUrl;
 		$this->node = $wgIBISFedServerNodeUrl;
+		$this->type_map = array(
+			'topic' => "2",
+			'issue' => "3",
+			'position' => "4",
+			'supporting_argument' => "6",
+			'opposing_argument' => "7",
+		);
 	}
 	function build_params($cargo){
 		$params = array(
@@ -33,6 +40,9 @@ class FedServerHandler {
 			'cargo' => $cargo,
 		);
 		return http_build_query($params);
+	}
+	function get_type_id($type){	
+		return $this->type_map[$type];
 	}
 	function postit($url,$cargo){
 		$params = $this->build_params($cargo);
@@ -49,7 +59,7 @@ class FedServerHandler {
 		$server_url = $this->base.$this->conversation;
 		$data = array(
 			'nodeId' => $id,
-			'type' => $type,
+			'type' => $this->get_type_id($type),
 			'label' => $title,
 			'details' => $desc,
 			'author' => $author,
@@ -62,9 +72,9 @@ class FedServerHandler {
 		$server_url = $this->base.$this->node;
 		$data = array(
 			'parentNodeId' => $parent_id,
-			'parentNodeType' => $parent_type,
+			'parentNodeType' => $this->get_type_id($parent_type),
 			'nodeId' => $id,
-			'type' => $type,
+			'type' => $this->get_type_id($type),
 			'label' => $title,
 			'details' => $desc,
 			'author' => $author,
