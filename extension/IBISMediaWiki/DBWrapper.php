@@ -35,7 +35,7 @@ class DBWrapper {
 		$q = "SELECT page_title FROM ".$this->db_prefix."page WHERE 
 page_id IN (
 SELECT rev_page FROM ".$this->db_prefix."revision 
-WHERE rev_id IN (SELECT old_id FROM ".$this->db_prefix."text WHERE old_text REGEXP 'type: topic')
+WHERE rev_text_id IN (SELECT old_id FROM ".$this->db_prefix."text WHERE old_text REGEXP 'type: topic')
 ) 
 AND 
 page_title REGEXP 'IBIS_[0-9]*$' 
