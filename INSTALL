@@ -54,5 +54,5 @@
 	$wgIBISFedServerBaseUrl = 'http://localhost:8080/ws/ibis/';
 	$wgIBISFedServerConversationUrl = 'conversation/';
 	$wgIBISFedServerNodeUrl = 'node/';
-	$wgIBISFedServerUser = 'admin';
-	$wgIBISFedServerPwd = 'admin';
+	$wgIBISFedServerUser = '<username>';
+	$wgIBISFedServerPwd = '<password>';
