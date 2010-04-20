@@ -38,7 +38,7 @@
 			print_r($FCKEditor);
 			$desc = $this->get_template_vars('desc');
 			$FCKeditor->Height = '350px';
-			$FCKeditor->ToolbarSet = 'Basic';
+			//$FCKeditor->ToolbarSet = 'Basic';
 			$FCKeditor->Value = $desc;
 			$FCKeditor->Create();
 			{/php}
